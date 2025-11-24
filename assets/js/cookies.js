@@ -1,200 +1,187 @@
 /**
- * WeRocket Tools - Cookie Consent JavaScript
+ * WeRocket Tools - Klaro Cookie Consent Integration
+ *
+ * This file provides helper functions for interacting with Klaro consent.
+ * The main Klaro library is loaded from CDN, and configuration is set via PHP.
  */
 
 (function() {
     'use strict';
 
-    const COOKIE_NAME = 'werocket_cookie_consent';
-    const COOKIE_EXPIRY = 365;
+    /**
+     * WeRocket Cookies API
+     * Provides utility functions for checking and managing consent
+     */
+    window.WeRocketCookies = {
 
-    const WeRocketCookies = {
-        settings: window.werocketCookies?.settings || {},
-        banner: null,
-        modal: null,
+        /**
+         * Check if a specific service has consent
+         * @param {string} serviceName - The service name (e.g., 'google-analytics')
+         * @returns {boolean}
+         */
+        hasConsent: function(serviceName) {
+            if (typeof klaro === 'undefined' || typeof klaro.getManager !== 'function') {
+                return false;
+            }
 
-        init: function() {
-            this.banner = document.getElementById('werocket-cookie-banner');
-            this.modal = document.getElementById('werocket-cookie-modal');
+            var manager = klaro.getManager();
+            if (!manager) return false;
 
-            if (!this.banner) return;
+            var consents = manager.consents;
+            return consents && consents[serviceName] === true;
+        },
 
-            this.bindEvents();
+        /**
+         * Get all current consents
+         * @returns {object|null}
+         */
+        getConsents: function() {
+            if (typeof klaro === 'undefined' || typeof klaro.getManager !== 'function') {
+                return null;
+            }
 
-            // Check if consent already given
-            if (!this.getConsent()) {
-                this.showBanner();
+            var manager = klaro.getManager();
+            return manager ? manager.consents : null;
+        },
+
+        /**
+         * Open the consent settings modal
+         * This is the main method to open cookie preferences
+         */
+        showSettings: function() {
+            // Remove any existing custom notice
+            var existingNotice = document.getElementById('werocket-cookie-notice');
+            if (existingNotice) {
+                existingNotice.remove();
+            }
+
+            // Show Klaro modal
+            if (typeof klaro !== 'undefined' && typeof klaro.show === 'function') {
+                klaro.show();
+            } else {
+                console.warn('WeRocket Cookies: Klaro not loaded');
             }
         },
 
-        bindEvents: function() {
-            // Accept all
-            this.banner.querySelectorAll('[data-action="accept"]').forEach(btn => {
-                btn.addEventListener('click', () => this.acceptAll());
-            });
-
-            // Reject all
-            this.banner.querySelectorAll('[data-action="reject"]').forEach(btn => {
-                btn.addEventListener('click', () => this.rejectAll());
-            });
-
-            // Customize
-            this.banner.querySelectorAll('[data-action="customize"]').forEach(btn => {
-                btn.addEventListener('click', () => this.showModal());
-            });
-
-            // Close modal
-            if (this.modal) {
-                this.modal.querySelectorAll('[data-action="close-modal"]').forEach(btn => {
-                    btn.addEventListener('click', () => this.hideModal());
-                });
-
-                this.modal.querySelector('.werocket-cookie-modal__overlay')?.addEventListener('click', () => this.hideModal());
-
-                // Save preferences
-                this.modal.querySelectorAll('[data-action="save-preferences"]').forEach(btn => {
-                    btn.addEventListener('click', () => this.savePreferences());
-                });
-            }
-        },
-
-        showBanner: function() {
-            this.banner.style.display = 'block';
-            setTimeout(() => {
-                this.banner.style.opacity = '1';
-            }, 10);
-        },
-
-        hideBanner: function() {
-            this.banner.style.opacity = '0';
-            setTimeout(() => {
-                this.banner.style.display = 'none';
-            }, 300);
-        },
-
+        /**
+         * Alias for showSettings
+         */
         showModal: function() {
-            if (this.modal) {
-                this.modal.style.display = 'flex';
-            }
+            this.showSettings();
         },
 
-        hideModal: function() {
-            if (this.modal) {
-                this.modal.style.display = 'none';
-            }
-        },
-
-        acceptAll: function() {
-            const categories = Object.keys(this.settings.categories || {});
-            const consent = {};
-
-            categories.forEach(cat => {
-                consent[cat] = true;
-            });
-
-            this.setConsent(consent);
-            this.hideBanner();
-            this.hideModal();
-            this.triggerConsentEvent(consent);
-        },
-
-        rejectAll: function() {
-            const categories = this.settings.categories || {};
-            const consent = {};
-
-            Object.keys(categories).forEach(cat => {
-                consent[cat] = categories[cat].required || false;
-            });
-
-            this.setConsent(consent);
-            this.hideBanner();
-            this.hideModal();
-            this.triggerConsentEvent(consent);
-        },
-
-        savePreferences: function() {
-            const consent = {};
-            const categories = this.settings.categories || {};
-
-            Object.keys(categories).forEach(cat => {
-                const checkbox = this.modal.querySelector(`input[name="cookie_category_${cat}"]`);
-                consent[cat] = checkbox ? checkbox.checked : categories[cat].required;
-            });
-
-            this.setConsent(consent);
-            this.hideBanner();
-            this.hideModal();
-            this.triggerConsentEvent(consent);
-        },
-
-        getConsent: function() {
-            const cookie = this.getCookie(COOKIE_NAME);
-            if (cookie) {
-                try {
-                    return JSON.parse(cookie);
-                } catch (e) {
-                    return null;
+        /**
+         * Reset all consents and show the modal again
+         */
+        resetConsents: function() {
+            if (typeof klaro !== 'undefined' && typeof klaro.getManager === 'function') {
+                var manager = klaro.getManager();
+                if (manager) {
+                    manager.resetConsents();
+                    this.showSettings();
                 }
             }
-            return null;
         },
 
-        setConsent: function(consent) {
-            this.setCookie(COOKIE_NAME, JSON.stringify(consent), COOKIE_EXPIRY);
-        },
-
-        getCookie: function(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) {
-                return parts.pop().split(';').shift();
+        /**
+         * Accept all cookies
+         */
+        acceptAll: function() {
+            if (typeof klaro !== 'undefined' && typeof klaro.getManager === 'function') {
+                var manager = klaro.getManager();
+                if (manager) {
+                    manager.saveAndApplyConsents(true);
+                }
             }
-            return null;
+            // Remove notice if exists
+            var notice = document.getElementById('werocket-cookie-notice');
+            if (notice) notice.remove();
         },
 
-        setCookie: function(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = `expires=${date.toUTCString()}`;
-            document.cookie = `${name}=${value};${expires};path=/;SameSite=Lax`;
+        /**
+         * Decline all cookies (except required)
+         */
+        declineAll: function() {
+            if (typeof klaro !== 'undefined' && typeof klaro.getManager === 'function') {
+                var manager = klaro.getManager();
+                if (manager) {
+                    manager.saveAndApplyConsents(false);
+                }
+            }
+            // Remove notice if exists
+            var notice = document.getElementById('werocket-cookie-notice');
+            if (notice) notice.remove();
         },
 
-        triggerConsentEvent: function(consent) {
-            const event = new CustomEvent('werocket_cookie_consent', {
-                detail: { consent: consent }
+        /**
+         * Check if consent has been given (any choice made)
+         * @returns {boolean}
+         */
+        hasChoiceMade: function() {
+            if (typeof klaro === 'undefined' || typeof klaro.getManager !== 'function') {
+                return false;
+            }
+
+            var manager = klaro.getManager();
+            return manager ? manager.confirmed : false;
+        },
+
+        /**
+         * Listen for consent changes
+         * @param {function} callback - Function to call when consent changes
+         */
+        onConsentChange: function(callback) {
+            document.addEventListener('werocket_consent_update', function(e) {
+                if (typeof callback === 'function') {
+                    callback(e.detail.consent, e.detail.service);
+                }
             });
-            document.dispatchEvent(event);
-
-            // Google Analytics / Tag Manager integration
-            if (window.gtag && consent.analytics) {
-                gtag('consent', 'update', {
-                    'analytics_storage': 'granted'
-                });
-            }
-
-            if (window.gtag && consent.marketing) {
-                gtag('consent', 'update', {
-                    'ad_storage': 'granted',
-                    'ad_user_data': 'granted',
-                    'ad_personalization': 'granted'
-                });
-            }
         },
 
-        hasConsent: function(category) {
-            const consent = this.getConsent();
-            return consent && consent[category] === true;
+        /**
+         * Execute callback only if service has consent
+         * @param {string} serviceName - The service to check
+         * @param {function} callback - Function to execute if consented
+         */
+        executeIfConsented: function(serviceName, callback) {
+            if (this.hasConsent(serviceName)) {
+                callback();
+            } else {
+                // Listen for future consent
+                this.onConsentChange(function(consent) {
+                    if (consent[serviceName]) {
+                        callback();
+                    }
+                });
+            }
         }
     };
 
     // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => WeRocketCookies.init());
-    } else {
-        WeRocketCookies.init();
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handler for elements with data-werocket-consent-manage attribute
+        document.querySelectorAll('[data-werocket-consent-manage]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                WeRocketCookies.showSettings();
+            });
+        });
 
-    // Expose globally for external access
-    window.WeRocketCookies = WeRocketCookies;
+        // Handle links with #manage-cookies or #cookie-settings hash
+        document.querySelectorAll('a[href="#manage-cookies"], a[href="#cookie-settings"], a[href="#gerer-cookies"]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                WeRocketCookies.showSettings();
+            });
+        });
+
+        // Handle any element with class .werocket-cookie-settings-link
+        document.querySelectorAll('.werocket-cookie-settings-link').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                WeRocketCookies.showSettings();
+            });
+        });
+    });
 
 })();

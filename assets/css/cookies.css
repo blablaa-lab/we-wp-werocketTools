@@ -1,260 +1,620 @@
 /**
- * WeRocket Tools - Cookie Banner Styles
+ * WeRocket Tools - Klaro Cookie Consent Customization
+ *
+ * This file provides custom styling for the Klaro cookie consent manager.
+ * Colors are controlled via CSS variables set dynamically from the admin settings.
  */
 
-.werocket-cookie-banner {
+/* ==========================================================================
+   CSS Custom Properties (set dynamically from PHP)
+   ========================================================================== */
+
+:root {
+    --werocket-klaro-primary: #059669;
+    --werocket-klaro-primary-hover: #047857;
+    --werocket-klaro-bg: #ffffff;
+    --werocket-klaro-text: #1f2937;
+    --werocket-klaro-text-secondary: #6b7280;
+    --werocket-klaro-border: #e5e7eb;
+    --werocket-klaro-toggle-on: #059669;
+    --werocket-klaro-toggle-off: #d1d5db;
+}
+
+/* ==========================================================================
+   Klaro Base Overrides
+   ========================================================================== */
+
+.klaro {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Notice/Banner - Base styles */
+.klaro .cookie-notice {
+    background: var(--werocket-klaro-bg) !important;
+    color: var(--werocket-klaro-text) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid var(--werocket-klaro-border) !important;
+    /* Reset Klaro default positioning - will be overridden by inline CSS */
+    position: fixed !important;
+    z-index: 999999 !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+
+.klaro .cookie-notice .cn-body {
+    padding: 24px !important;
+}
+
+.klaro .cookie-notice .cn-body p {
+    color: var(--werocket-klaro-text-secondary) !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    margin-bottom: 16px !important;
+}
+
+.klaro .cookie-notice .cn-body p.title {
+    color: var(--werocket-klaro-text) !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+}
+
+/* Buttons Container */
+.klaro .cookie-notice .cn-buttons {
+    display: flex !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    margin-top: 20px !important;
+}
+
+/* Primary Button (Accept All) */
+.klaro .cookie-notice .cm-btn.cm-btn-success,
+.klaro .cookie-modal .cm-btn.cm-btn-success {
+    background: var(--werocket-klaro-primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.klaro .cookie-notice .cm-btn.cm-btn-success:hover,
+.klaro .cookie-modal .cm-btn.cm-btn-success:hover {
+    background: var(--werocket-klaro-primary-hover) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Secondary Button (Decline All) */
+.klaro .cookie-notice .cm-btn.cm-btn-danger,
+.klaro .cookie-modal .cm-btn.cm-btn-danger {
+    background: transparent !important;
+    color: var(--werocket-klaro-text-secondary) !important;
+    border: 1px solid var(--werocket-klaro-border) !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.klaro .cookie-notice .cm-btn.cm-btn-danger:hover,
+.klaro .cookie-modal .cm-btn.cm-btn-danger:hover {
+    background: #f3f4f6 !important;
+    border-color: #d1d5db !important;
+}
+
+/* Info/Settings Button */
+.klaro .cookie-notice .cm-btn.cm-btn-info,
+.klaro .cookie-modal .cm-btn.cm-btn-info {
+    background: #f3f4f6 !important;
+    color: var(--werocket-klaro-text) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.klaro .cookie-notice .cm-btn.cm-btn-info:hover,
+.klaro .cookie-modal .cm-btn.cm-btn-info:hover {
+    background: #e5e7eb !important;
+}
+
+/* ==========================================================================
+   Modal Styles
+   ========================================================================== */
+
+.klaro .cookie-modal {
+    z-index: 999999 !important;
+}
+
+.klaro .cookie-modal .cm-modal {
+    background: var(--werocket-klaro-bg) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    max-width: 640px !important;
+    max-height: 90vh !important;
+    overflow: hidden !important;
+    border: 1px solid var(--werocket-klaro-border) !important;
+}
+
+/* Modal Header */
+.klaro .cookie-modal .cm-modal .cm-header {
+    background: var(--werocket-klaro-bg) !important;
+    border-bottom: 1px solid var(--werocket-klaro-border) !important;
+    padding: 20px 24px !important;
+}
+
+.klaro .cookie-modal .cm-modal .cm-header h1 {
+    color: var(--werocket-klaro-text) !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+}
+
+.klaro .cookie-modal .cm-modal .cm-header p {
+    color: var(--werocket-klaro-text-secondary) !important;
+    font-size: 14px !important;
+    margin-top: 8px !important;
+}
+
+/* Modal Body */
+.klaro .cookie-modal .cm-modal .cm-body {
+    padding: 20px 24px !important;
+    overflow-y: auto !important;
+    max-height: 50vh !important;
+}
+
+/* Modal Footer */
+.klaro .cookie-modal .cm-modal .cm-footer {
+    background: #f9fafb !important;
+    border-top: 1px solid var(--werocket-klaro-border) !important;
+    padding: 16px 24px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+}
+
+/* ==========================================================================
+   Service/App Items
+   ========================================================================== */
+
+.klaro .cookie-modal .cm-app {
+    background: #f9fafb !important;
+    border: 1px solid var(--werocket-klaro-border) !important;
+    border-radius: 10px !important;
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+}
+
+.klaro .cookie-modal .cm-app:last-child {
+    margin-bottom: 0 !important;
+}
+
+.klaro .cookie-modal .cm-app .title {
+    color: var(--werocket-klaro-text) !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+}
+
+.klaro .cookie-modal .cm-app p.purposes {
+    color: var(--werocket-klaro-text-secondary) !important;
+    font-size: 12px !important;
+    margin-top: 4px !important;
+}
+
+.klaro .cookie-modal .cm-app .cm-app-description {
+    color: var(--werocket-klaro-text-secondary) !important;
+    font-size: 13px !important;
+    margin-top: 8px !important;
+    line-height: 1.5 !important;
+}
+
+/* ==========================================================================
+   Toggle Switch
+   ========================================================================== */
+
+.klaro .cm-toggle-wrap {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.klaro .cm-toggle-wrap input[type="checkbox"] + .slider {
+    background: var(--werocket-klaro-toggle-off) !important;
+    border-radius: 999px !important;
+    width: 44px !important;
+    height: 24px !important;
+    transition: all 0.2s ease !important;
+}
+
+.klaro .cm-toggle-wrap input[type="checkbox"]:checked + .slider {
+    background: var(--werocket-klaro-toggle-on) !important;
+}
+
+.klaro .cm-toggle-wrap input[type="checkbox"] + .slider::before {
+    background: #ffffff !important;
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    transition: transform 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.klaro .cm-toggle-wrap input[type="checkbox"]:checked + .slider::before {
+    transform: translateX(20px) !important;
+}
+
+/* ==========================================================================
+   Purpose/Category Groups
+   ========================================================================== */
+
+.klaro .cm-purposes {
+    margin-top: 16px !important;
+}
+
+.klaro .cm-purpose {
+    background: #ffffff !important;
+    border: 1px solid var(--werocket-klaro-border) !important;
+    border-radius: 10px !important;
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+}
+
+.klaro .cm-purpose .cm-purpose-title {
+    color: var(--werocket-klaro-text) !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+}
+
+.klaro .cm-purpose .cm-purpose-description {
+    color: var(--werocket-klaro-text-secondary) !important;
+    font-size: 13px !important;
+    margin-top: 4px !important;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+.klaro a {
+    color: var(--werocket-klaro-primary) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+.klaro a:hover {
+    color: var(--werocket-klaro-primary-hover) !important;
+    text-decoration: underline !important;
+}
+
+/* Privacy Policy Link */
+.klaro .cm-link {
+    color: var(--werocket-klaro-primary) !important;
+    font-size: 13px !important;
+}
+
+/* ==========================================================================
+   Required Badge
+   ========================================================================== */
+
+.klaro .cm-required {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    padding: 2px 8px !important;
+    border-radius: 999px !important;
+    margin-left: 8px !important;
+}
+
+/* ==========================================================================
+   Close Button
+   ========================================================================== */
+
+.klaro .cookie-modal .cm-modal .cm-close {
+    color: var(--werocket-klaro-text-secondary) !important;
+    font-size: 24px !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.klaro .cookie-modal .cm-modal .cm-close:hover {
+    background: #f3f4f6 !important;
+    color: var(--werocket-klaro-text) !important;
+}
+
+/* ==========================================================================
+   Backdrop/Overlay
+   ========================================================================== */
+
+.klaro .cookie-modal-backdrop {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+/* ==========================================================================
+   Context/Powered By
+   ========================================================================== */
+
+.klaro .context-notice {
+    display: none !important;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+.klaro .cookie-notice {
+    animation: werocket-slide-up 0.3s ease-out !important;
+}
+
+.klaro .cookie-modal .cm-modal {
+    animation: werocket-modal-in 0.3s ease-out !important;
+}
+
+@keyframes werocket-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes werocket-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 640px) {
+    .klaro .cookie-notice {
+        margin: 12px !important;
+        border-radius: 12px !important;
+    }
+
+    .klaro .cookie-notice .cn-body {
+        padding: 16px !important;
+    }
+
+    .klaro .cookie-notice .cn-buttons {
+        flex-direction: column !important;
+    }
+
+    .klaro .cookie-notice .cm-btn {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .klaro .cookie-modal .cm-modal {
+        margin: 12px !important;
+        max-height: calc(100vh - 24px) !important;
+        border-radius: 12px !important;
+    }
+
+    .klaro .cookie-modal .cm-modal .cm-body {
+        max-height: 40vh !important;
+    }
+}
+
+/* ==========================================================================
+   Dark Theme Override
+   ========================================================================== */
+
+.klaro.klaro-dark .cookie-notice,
+.klaro.klaro-dark .cookie-modal .cm-modal {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+.klaro.klaro-dark .cookie-notice .cn-body p.title,
+.klaro.klaro-dark .cookie-modal .cm-modal .cm-header h1,
+.klaro.klaro-dark .cm-app .title,
+.klaro.klaro-dark .cm-purpose .cm-purpose-title {
+    color: #f9fafb !important;
+}
+
+.klaro.klaro-dark .cookie-notice .cn-body p,
+.klaro.klaro-dark .cookie-modal .cm-modal .cm-header p,
+.klaro.klaro-dark .cm-app .cm-app-description,
+.klaro.klaro-dark .cm-purpose .cm-purpose-description {
+    color: #9ca3af !important;
+}
+
+.klaro.klaro-dark .cm-app {
+    background: #111827 !important;
+    border-color: #374151 !important;
+}
+
+.klaro.klaro-dark .cm-purpose {
+    background: #111827 !important;
+    border-color: #374151 !important;
+}
+
+.klaro.klaro-dark .cookie-modal .cm-modal .cm-footer {
+    background: #111827 !important;
+    border-color: #374151 !important;
+}
+
+.klaro.klaro-dark .cm-btn.cm-btn-danger {
+    border-color: #4b5563 !important;
+    color: #d1d5db !important;
+}
+
+.klaro.klaro-dark .cm-btn.cm-btn-danger:hover {
+    background: #374151 !important;
+}
+
+.klaro.klaro-dark .cm-btn.cm-btn-info {
+    background: #374151 !important;
+    color: #f9fafb !important;
+}
+
+.klaro.klaro-dark .cm-btn.cm-btn-info:hover {
+    background: #4b5563 !important;
+}
+
+/* ==========================================================================
+   Utility: Hide Klaro for logged-in admins (optional class)
+   ========================================================================== */
+
+.werocket-hide-consent .klaro {
+    display: none !important;
+}
+
+/* ==========================================================================
+   Custom Notice Banner (non-modal mode)
+   ========================================================================== */
+
+.werocket-notice {
     position: fixed;
-    left: 0;
-    right: 0;
     z-index: 999999;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.werocket-cookie-banner--bottom {
-    bottom: 0;
-}
-
-.werocket-cookie-banner--top {
-    top: 0;
-}
-
-.werocket-cookie-banner--center {
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.werocket-cookie-banner__container {
-    background: #fff;
-    padding: 20px 24px;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.werocket-cookie-banner--bar .werocket-cookie-banner__container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.werocket-cookie-banner--box .werocket-cookie-banner__container,
-.werocket-cookie-banner--center .werocket-cookie-banner__container {
-    max-width: 500px;
-    margin: 20px;
+    max-width: 420px;
+    width: calc(100% - 40px);
+    background: var(--werocket-klaro-bg, #ffffff);
     border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--werocket-klaro-border, #e5e7eb);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.werocket-cookie-banner__content {
-    flex: 1;
-    min-width: 280px;
+.werocket-notice--visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-.werocket-cookie-banner__title {
-    margin: 0 0 8px;
+/* Positions */
+.werocket-notice--bottom-left {
+    bottom: 20px;
+    left: 20px;
+}
+
+.werocket-notice--bottom-right {
+    bottom: 20px;
+    right: 20px;
+}
+
+.werocket-notice--top-left {
+    top: 20px;
+    left: 20px;
+}
+
+.werocket-notice--top-right {
+    top: 20px;
+    right: 20px;
+}
+
+.werocket-notice__content {
+    padding: 20px;
+}
+
+.werocket-notice__text {
+    margin-bottom: 16px;
+}
+
+.werocket-notice__text strong {
+    display: block;
     font-size: 16px;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--werocket-klaro-text, #1f2937);
+    margin-bottom: 8px;
 }
 
-.werocket-cookie-banner__message {
+.werocket-notice__text p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--werocket-klaro-text-secondary, #6b7280);
     margin: 0;
-    color: #6b7280;
 }
 
-.werocket-cookie-banner__link {
-    color: var(--werocket-primary, #059669);
-    text-decoration: underline;
-}
-
-.werocket-cookie-banner__actions {
+.werocket-notice__buttons {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-/* Buttons */
-.werocket-cookie-btn {
-    padding: 10px 20px;
+.werocket-notice__btn {
+    padding: 10px 16px;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
+    flex: 1;
+    min-width: 100px;
 }
 
-.werocket-cookie-btn--primary {
-    background: var(--werocket-primary, #059669);
-    color: #fff;
+.werocket-notice__btn--primary {
+    background: var(--werocket-klaro-primary, #059669);
+    color: #ffffff;
 }
 
-.werocket-cookie-btn--primary:hover {
-    opacity: 0.9;
+.werocket-notice__btn--primary:hover {
+    background: var(--werocket-klaro-primary-hover, #047857);
 }
 
-.werocket-cookie-btn--secondary {
+.werocket-notice__btn--secondary {
     background: #f3f4f6;
-    color: #374151;
+    color: var(--werocket-klaro-text, #1f2937);
 }
 
-.werocket-cookie-btn--secondary:hover {
+.werocket-notice__btn--secondary:hover {
     background: #e5e7eb;
 }
 
-.werocket-cookie-btn--outline {
+.werocket-notice__btn--outline {
     background: transparent;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
+    color: var(--werocket-klaro-text-secondary, #6b7280);
+    border: 1px solid var(--werocket-klaro-border, #d1d5db);
 }
 
-.werocket-cookie-btn--outline:hover {
+.werocket-notice__btn--outline:hover {
     background: #f9fafb;
-}
-
-/* Modal */
-.werocket-cookie-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.werocket-cookie-modal__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.werocket-cookie-modal__content {
-    position: relative;
-    background: #fff;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.werocket-cookie-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.werocket-cookie-modal__header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.werocket-cookie-modal__close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #9ca3af;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-.werocket-cookie-modal__close:hover {
-    color: #6b7280;
-}
-
-.werocket-cookie-modal__body {
-    padding: 20px 24px;
-    overflow-y: auto;
-}
-
-.werocket-cookie-modal__footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 16px 24px;
-    border-top: 1px solid #e5e7eb;
-}
-
-/* Categories */
-.werocket-cookie-category {
-    padding: 16px;
-    background: #f9fafb;
-    border-radius: 8px;
-    margin-bottom: 12px;
-}
-
-.werocket-cookie-category:last-child {
-    margin-bottom: 0;
-}
-
-.werocket-cookie-category__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-
-.werocket-cookie-category__label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 500;
-    color: #1f2937;
-    cursor: pointer;
-}
-
-.werocket-cookie-category__label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--werocket-primary, #059669);
-}
-
-.werocket-cookie-category__badge {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
-    background: #d1fae5;
-    color: #065f46;
-    border-radius: 9999px;
-}
-
-.werocket-cookie-category__description {
-    margin: 0;
-    font-size: 13px;
-    color: #6b7280;
 }
 
 /* Responsive */
-@media (max-width: 640px) {
-    .werocket-cookie-banner--bar .werocket-cookie-banner__container {
+@media (max-width: 480px) {
+    .werocket-notice {
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 10px !important;
+        top: auto !important;
+        max-width: none;
+        width: auto;
+    }
+
+    .werocket-notice__buttons {
         flex-direction: column;
-        text-align: center;
     }
 
-    .werocket-cookie-banner__actions {
-        justify-content: center;
+    .werocket-notice__btn {
         width: 100%;
-    }
-
-    .werocket-cookie-btn {
-        flex: 1;
     }
 }

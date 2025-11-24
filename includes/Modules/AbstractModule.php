@@ -30,7 +30,46 @@ abstract class AbstractModule implements ModuleInterface {
     }
 
     public function get_settings(): array {
-        return get_option($this->option_key, $this->get_default_settings());
+        $defaults = $this->get_default_settings();
+        $saved = get_option($this->option_key, []);
+
+        // Deep merge saved settings with defaults
+        return $this->array_merge_recursive_distinct($defaults, $saved);
+    }
+
+    /**
+     * Recursively merge arrays, with $array2 values overwriting $array1
+     * Unlike array_merge_recursive, this replaces values instead of creating arrays
+     */
+    protected function array_merge_recursive_distinct(array $array1, array $array2): array {
+        $merged = $array1;
+
+        foreach ($array2 as $key => $value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                // Check if it's an indexed array (like services) or associative
+                if ($this->is_indexed_array($value)) {
+                    // For indexed arrays, replace entirely
+                    $merged[$key] = $value;
+                } else {
+                    // For associative arrays, merge recursively
+                    $merged[$key] = $this->array_merge_recursive_distinct($merged[$key], $value);
+                }
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Check if array is indexed (sequential numeric keys starting from 0)
+     */
+    protected function is_indexed_array(array $array): bool {
+        if (empty($array)) {
+            return true;
+        }
+        return array_keys($array) === range(0, count($array) - 1);
     }
 
     public function save_settings(array $data): bool {

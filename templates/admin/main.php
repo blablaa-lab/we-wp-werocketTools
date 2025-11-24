@@ -25,8 +25,13 @@ $active_modules = $options['active_modules'] ?? [];
                 </h1>
                 <p class="text-emerald-100 mt-2"><?php esc_html_e('Suite d\'outils pour votre site WordPress', 'werocket-tools'); ?></p>
             </div>
-            <div class="text-white text-sm">
-                <?php printf(__('Version %s', 'werocket-tools'), WEROCKET_TOOLS_VERSION); ?>
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <p class="text-xl text-white"><?php printf(__('v %s', 'werocket-tools'), WEROCKET_TOOLS_VERSION); ?></p>
             </div>
         </div>
     </div>
@@ -35,8 +40,8 @@ $active_modules = $options['active_modules'] ?? [];
     <div class="bg-white rounded-lg shadow mr-4 mb-6">
         <nav class="flex align-items-center justify-start border-b border-gray-200" aria-label="Tabs">
             <a href="<?php echo esc_url(admin_url('admin.php?page=werocket-tools&tab=dashboard')); ?>"
-               class="tab-link px-6 py-4 text-sm font-medium border-b-2 <?php echo $current_tab === 'dashboard' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'; ?>">
-                <svg class="w-5 h-5 inline-block mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               class="flex items-center gap-2 no-underline tab-link px-6 py-4 text-sm font-medium border-b-2 <?php echo $current_tab === 'dashboard' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'; ?>">
+                <svg class="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                 </svg>
                 <?php esc_html_e('Tableau de bord', 'werocket-tools'); ?>
@@ -44,7 +49,7 @@ $active_modules = $options['active_modules'] ?? [];
 
             <?php foreach ($modules as $module): ?>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=werocket-tools&tab=' . $module->get_id())); ?>"
-                   class="tab-link px-6 py-4 text-sm font-medium border-b-2 <?php echo $current_tab === $module->get_id() ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'; ?>">
+                   class="flex items-center gap-2 no-underline tab-link px-6 py-4 text-sm font-medium border-b-2 <?php echo $current_tab === $module->get_id() ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'; ?>">
                     <?php echo $module->get_icon(); ?>
                     <?php echo esc_html($module->get_name()); ?>
                 </a>
