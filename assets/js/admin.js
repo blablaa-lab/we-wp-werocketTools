@@ -74,6 +74,10 @@
                     if (response.success) {
                         // Sync all toggles with same module
                         $('.module-toggle[data-module="' + moduleId + '"]').prop('checked', active);
+
+                        // Update status badges in dashboard
+                        WeRocketAdmin.updateModuleStatus(moduleId, active);
+
                         WeRocketAdmin.showToast(response.data.message, 'success');
                     } else {
                         $toggle.prop('checked', !active);
@@ -85,6 +89,63 @@
                     WeRocketAdmin.showToast(werocketTools.strings.error, 'error');
                 }
             });
+        },
+
+        updateModuleStatus: function(moduleId, active) {
+            try {
+                // Find the module card in dashboard
+                const $moduleCards = $('.module-toggle[data-module="' + moduleId + '"]').closest('.bg-white');
+
+                if (!$moduleCards.length) {
+                    // No cards found, probably not on dashboard - this is fine
+                    return;
+                }
+
+                $moduleCards.each(function() {
+                    const $card = $(this);
+                    const $statusContainer = $card.find('.bg-gray-50 span.inline-flex');
+
+                    if (!$statusContainer.length) {
+                        // No status container found - probably on a module settings page
+                        return;
+                    }
+
+                    const $statusDot = $statusContainer.find('.rounded-full');
+
+                    if (active) {
+                        // Active state
+                        $statusContainer.removeClass('text-gray-500').addClass('text-green-600');
+                        if ($statusDot.length) {
+                            $statusDot.removeClass('bg-gray-400').addClass('bg-green-500');
+                        }
+
+                        // Update text by finding and replacing the text node
+                        const textNodes = $statusContainer.contents().filter(function() {
+                            return this.nodeType === 3 && this.textContent.trim() !== '';
+                        });
+                        if (textNodes.length > 0) {
+                            textNodes[0].textContent = 'Actif';
+                        }
+                    } else {
+                        // Inactive state
+                        $statusContainer.removeClass('text-green-600').addClass('text-gray-500');
+                        if ($statusDot.length) {
+                            $statusDot.removeClass('bg-green-500').addClass('bg-gray-400');
+                        }
+
+                        // Update text by finding and replacing the text node
+                        const textNodes = $statusContainer.contents().filter(function() {
+                            return this.nodeType === 3 && this.textContent.trim() !== '';
+                        });
+                        if (textNodes.length > 0) {
+                            textNodes[0].textContent = 'Inactif';
+                        }
+                    }
+                });
+            } catch (error) {
+                // Silently handle errors - status update is not critical
+                console.log('WeRocket: Could not update module status display', error);
+            }
         },
 
         handleDayClosedToggle: function(e) {

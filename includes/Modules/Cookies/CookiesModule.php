@@ -24,11 +24,28 @@ class CookiesModule extends AbstractModule {
             add_action('wp_head', [$this, 'render_klaro_config'], 2);
             add_action('wp_head', [$this, 'render_klaro_script'], 3);
             add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
+            add_filter('body_class', [$this, 'add_theme_body_class']);
         }
 
         // Register shortcodes
         add_shortcode('werocket_cookie_settings', [$this, 'render_cookie_settings_shortcode']);
         add_shortcode('werocket_manage_cookies', [$this, 'render_cookie_settings_shortcode']);
+    }
+
+    /**
+     * Add theme class to body
+     */
+    public function add_theme_body_class(array $classes): array {
+        $settings = $this->get_settings();
+        $theme = $settings['theme'] ?? 'light';
+
+        if ($theme === 'dark') {
+            $classes[] = 'werocket-cookies-theme-dark';
+        } else {
+            $classes[] = 'werocket-cookies-theme-light';
+        }
+
+        return $classes;
     }
 
     /**
@@ -80,7 +97,7 @@ class CookiesModule extends AbstractModule {
             'cookie_domain' => '',
 
             // Behavior
-            'must_consent' => true,
+            'must_consent' => false, // Set to false to prevent Klaro auto-showing on load
             'accept_all' => true,
             'hide_decline_all' => false,
             'hide_learn_more' => false,
@@ -117,7 +134,7 @@ class CookiesModule extends AbstractModule {
                 'decline_all' => 'Tout refuser',
                 'accept_selected' => 'Accepter la sélection',
                 'save' => 'Enregistrer',
-                'settings' => 'Paramètres',
+                'settings' => 'Personnaliser',
                 'close' => 'Fermer',
                 'privacy_policy' => 'Politique de confidentialité',
                 'privacy_policy_url' => '',
@@ -421,34 +438,166 @@ class CookiesModule extends AbstractModule {
     }
 
     /**
+     * Render Klaro container div (required by Klaro)
+     */
+    public function render_klaro_container(): void {
+        echo '<div id="werocket-klaro"></div>' . "\n";
+    }
+
+    /**
      * Render Klaro script tag directly in head (after config)
      */
     public function render_klaro_script(): void {
         $settings = $this->get_settings();
         $position = $settings['position'] ?? 'bottom-left';
         $show_modal = !empty($settings['must_consent']) || !empty($settings['notice_as_modal']);
+
+        // Output Klaro container div first
+        $this->render_klaro_container();
         ?>
 <script defer type="text/javascript" src="https://cdn.kiprotect.com/klaro/v0.7/klaro.js"></script>
 <script>
 (function() {
+    // Prevent multiple initializations
+    if (window.werocketKlaroInitialized) {
+        return;
+    }
+    window.werocketKlaroInitialized = true;
+
     var klaroPosition = '<?php echo esc_js($position); ?>';
     var showAsModal = <?php echo $show_modal ? 'true' : 'false'; ?>;
+    var klaroTheme = '<?php echo esc_js($settings['theme'] ?? 'light'); ?>';
+
+    // Force theme by removing Klaro's auto-detected dark class
+    function enforceTheme() {
+        var klaroElements = document.querySelectorAll('.klaro');
+        klaroElements.forEach(function(el) {
+            // Remove Klaro's dark mode class
+            el.classList.remove('klaro-dark');
+
+            // Add our custom class if dark theme is selected
+            if (klaroTheme === 'dark') {
+                el.classList.add('werocket-force-dark');
+            } else {
+                el.classList.remove('werocket-force-dark');
+            }
+        });
+    }
+
+    function cleanupExistingNotices() {
+        // Remove any existing WeRocket notices
+        var existingNotices = document.querySelectorAll('#werocket-cookie-notice, .werocket-notice');
+        existingNotices.forEach(function(notice) {
+            notice.remove();
+        });
+
+        // Remove any duplicate Klaro modals
+        var klaroModals = document.querySelectorAll('.klaro, [id^="klaro-"]');
+        if (klaroModals.length > 1) {
+            // Keep only the first one, remove the rest
+            for (var i = 1; i < klaroModals.length; i++) {
+                klaroModals[i].remove();
+            }
+        }
+    }
 
     function initKlaroNotice() {
         if (typeof klaro === 'undefined') return;
 
         var manager = klaro.getManager ? klaro.getManager() : null;
-        if (!manager) return;
+        if (!manager) {
+            return;
+        }
 
-        // If consent already given, don't show
-        if (manager.confirmed) return;
+        // Clean up any existing notices first
+        cleanupExistingNotices();
 
-        if (showAsModal) {
-            // Show as modal
-            klaro.show();
+        // Enforce theme immediately
+        enforceTheme();
+
+        // Simple approach: Hide Klaro's modal and show custom notice
+        if (!showAsModal) {
+
+            // Hide any Klaro UI elements with CSS (using opacity for smooth transitions)
+            var style = document.createElement('style');
+            style.id = 'werocket-klaro-hide';
+            style.textContent = `
+                .klaro .cookie-modal,
+                .klaro .cookie-notice {
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    visibility: hidden !important;
+                }
+                .klaro .cookie-modal-backdrop {
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Only show custom notice if consent not yet given
+            if (!manager.confirmed) {
+                createCustomNotice(manager, klaroPosition);
+            }
+
+            // Watch for Klaro modal being added (simple observer, no loop)
+            var observer = new MutationObserver(function(mutations) {
+                var modal = document.querySelector('.klaro .cookie-modal');
+                var externalBackdrop = document.querySelector('.klaro .cookie-modal-backdrop');
+
+                if (modal) {
+                    enforceTheme();
+
+                    // Function to remove all modal elements
+                    function closeModal() {
+                        if (modal && modal.parentNode) {
+                            modal.remove();
+                        }
+                        if (externalBackdrop && externalBackdrop.parentNode) {
+                            externalBackdrop.remove();
+                        }
+                        // Also remove any .cm-bg
+                        var cmBg = document.querySelector('.klaro .cm-bg');
+                        if (cmBg && cmBg.parentNode) {
+                            cmBg.remove();
+                        }
+                    }
+
+                    // Add click handler on modal container
+                    if (!modal.hasAttribute('data-werocket-close-listener')) {
+                        modal.setAttribute('data-werocket-close-listener', 'true');
+
+                        modal.addEventListener('click', function(e) {
+                            var isBackdropClick = e.target.classList.contains('cm-bg') ||
+                                                 e.target.classList.contains('cookie-modal');
+
+                            if (isBackdropClick) {
+                                closeModal();
+                            }
+                        });
+                    }
+
+                    // Add click handler on external backdrop too
+                    if (externalBackdrop && !externalBackdrop.hasAttribute('data-werocket-close-listener')) {
+                        externalBackdrop.setAttribute('data-werocket-close-listener', 'true');
+
+                        externalBackdrop.addEventListener('click', function(e) {
+                            if (e.target === externalBackdrop) {
+                                closeModal();
+                            }
+                        });
+                    }
+                }
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         } else {
-            // Create custom notice banner
-            createCustomNotice(manager, klaroPosition);
+            // Show Klaro modal directly
+            klaro.show();
+            setTimeout(enforceTheme, 50);
         }
     }
 
@@ -469,7 +618,7 @@ class CookiesModule extends AbstractModule {
                     '<p>' + (texts.description || 'Nous utilisons des cookies pour améliorer votre expérience.') + '</p>' +
                 '</div>' +
                 '<div class="werocket-notice__buttons">' +
-                    '<button type="button" class="werocket-notice__btn werocket-notice__btn--secondary" data-action="settings">Paramètres</button>' +
+                    '<button type="button" class="werocket-notice__btn werocket-notice__btn--secondary" data-action="settings">Personnaliser</button>' +
                     '<button type="button" class="werocket-notice__btn werocket-notice__btn--outline" data-action="decline">Refuser</button>' +
                     '<button type="button" class="werocket-notice__btn werocket-notice__btn--primary" data-action="accept">Accepter</button>' +
                 '</div>' +
@@ -504,27 +653,118 @@ class CookiesModule extends AbstractModule {
             settingsBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                // Remove notice
                 notice.remove();
-                // Use setTimeout to ensure notice is removed before opening modal
-                setTimeout(function() {
-                    if (typeof klaro !== 'undefined' && typeof klaro.show === 'function') {
-                        klaro.show();
+
+                // Add smooth transition before removing hide style
+                var transitionStyle = document.createElement('style');
+                transitionStyle.id = 'werocket-klaro-transition';
+                transitionStyle.textContent = `
+                    .klaro .cookie-modal,
+                    .klaro .cookie-modal-backdrop,
+                    .klaro .cm-modal {
+                        transition: opacity 0.3s ease-out, visibility 0.3s ease-out !important;
                     }
-                }, 50);
+                `;
+                document.head.appendChild(transitionStyle);
+
+                // Wait a frame for transition style to be applied
+                requestAnimationFrame(function() {
+                    // Remove the style that hides Klaro modal
+                    var hideStyle = document.getElementById('werocket-klaro-hide');
+                    if (hideStyle) {
+                        hideStyle.remove();
+                    }
+
+                    // Remove werocket-hidden class from any Klaro elements
+                    var klaroElements = document.querySelectorAll('.klaro.werocket-hidden, .klaro .werocket-hidden');
+                    klaroElements.forEach(function(el) {
+                        el.classList.remove('werocket-hidden');
+                    });
+                });
+
+                // Open modal with minimal delay (just enough for transition style to apply)
+                setTimeout(function() {
+                    if (typeof klaro === 'undefined') {
+                        alert('Erreur : Klaro n\'est pas chargé. Veuillez actualiser la page.');
+                        return;
+                    }
+
+                    try {
+                        // Call klaro.show() to display the notice first
+                        klaro.show();
+
+                        // Try multiple approaches to open the settings modal (reduced delay)
+                        setTimeout(function() {
+                            var manager = klaro.getManager();
+
+                            // Approach 1: Try manager.showModal() if it exists
+                            if (manager && typeof manager.showModal === 'function') {
+                                manager.showModal();
+                                setTimeout(enforceTheme, 100);
+                                return;
+                            }
+
+                            // Approach 2: Try manager.modal.show()
+                            if (manager && manager.modal && typeof manager.modal.show === 'function') {
+                                manager.modal.show();
+                                setTimeout(enforceTheme, 100);
+                                return;
+                            }
+
+                            // Approach 3: Try klaro.show() with force parameter
+                            if (typeof klaro.show === 'function') {
+                                try {
+                                    klaro.show(undefined, true);
+                                    setTimeout(enforceTheme, 100);
+                                    return;
+                                } catch (e) {
+                                    // Silently fail and try next approach
+                                }
+                            }
+
+                            // Approach 4: Find and click the settings link
+                            var settingsLink = document.querySelector('.klaro .cn-learn-more, .klaro a[href="#"]');
+                            if (settingsLink) {
+                                settingsLink.click();
+                                setTimeout(enforceTheme, 200);
+                            } else {
+                                alert('Impossible d\'ouvrir les paramètres. Veuillez réessayer ou contacter le support.');
+                            }
+                        }, 50);
+                    } catch (error) {
+                        alert('Erreur : ' + error.message);
+                    }
+                }, 20);
             });
         }
 
-        // Animate in
-        setTimeout(function() { notice.classList.add('werocket-notice--visible'); }, 10);
+        // Animate in smoothly using requestAnimationFrame
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                notice.classList.add('werocket-notice--visible');
+            });
+        });
     }
 
-    // Wait for DOM and Klaro
+    // Wait for DOM and Klaro with optimized timing
+    function waitForKlaro() {
+        if (typeof klaro !== 'undefined' && typeof klaro.getManager === 'function') {
+            // Klaro is ready, but wait a bit more to ensure full initialization
+            setTimeout(function() {
+                initKlaroNotice();
+            }, 100);
+        } else {
+            // Klaro not ready yet, check again in 50ms
+            setTimeout(waitForKlaro, 50);
+        }
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initKlaroNotice, 200);
-        });
+        document.addEventListener('DOMContentLoaded', waitForKlaro);
     } else {
-        setTimeout(initKlaroNotice, 200);
+        waitForKlaro();
     }
 })();
 </script>
@@ -614,13 +854,17 @@ klaroConfig.callback = function(consent, service) {
 
             // Behavior
             'default' => $settings['default'],
-            'mustConsent' => $settings['must_consent'],
+            // Don't force mustConsent - let user control it
+            // If forced to true, Klaro will auto-show its modal at page load
+            'mustConsent' => !empty($settings['must_consent']),
             'acceptAll' => $settings['accept_all'],
             'hideDeclineAll' => $settings['hide_decline_all'],
             'hideLearnMore' => $settings['hide_learn_more'],
             'hideToggleAll' => $settings['hide_toggle_all'],
             'groupByPurpose' => $settings['group_by_purpose'],
-            'noticeAsModal' => $settings['notice_as_modal'],
+            // Force noticeAsModal to true so Klaro creates a modal with service list
+            // We'll hide it with CSS and show our custom notice instead
+            'noticeAsModal' => true,
 
             'htmlTexts' => $settings['html_texts'],
 

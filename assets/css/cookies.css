@@ -133,6 +133,14 @@
 
 .klaro .cookie-modal {
     z-index: 999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
 }
 
 .klaro .cookie-modal .cm-modal {
@@ -140,9 +148,14 @@
     border-radius: 16px !important;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
     max-width: 640px !important;
-    max-height: 90vh !important;
+    width: 90% !important;
+    max-height: 80vh !important;
     overflow: hidden !important;
     border: 1px solid var(--werocket-klaro-border) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: inherit !important;
+    margin: 0 !important;
 }
 
 /* Modal Header */
@@ -150,6 +163,7 @@
     background: var(--werocket-klaro-bg) !important;
     border-bottom: 1px solid var(--werocket-klaro-border) !important;
     padding: 20px 24px !important;
+    flex-shrink: 0 !important;
 }
 
 .klaro .cookie-modal .cm-modal .cm-header h1 {
@@ -165,11 +179,12 @@
     margin-top: 8px !important;
 }
 
-/* Modal Body */
+/* Modal Body - Fixed height with scroll */
 .klaro .cookie-modal .cm-modal .cm-body {
     padding: 20px 24px !important;
     overflow-y: auto !important;
-    max-height: 50vh !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
 }
 
 /* Modal Footer */
@@ -180,6 +195,7 @@
     display: flex !important;
     justify-content: flex-end !important;
     gap: 12px !important;
+    flex-shrink: 0 !important;
 }
 
 /* ==========================================================================
@@ -342,6 +358,23 @@
 .klaro .cookie-modal-backdrop {
     background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(4px) !important;
+    transition: opacity 0.3s ease-out !important;
+}
+
+/* Hide backdrop when not needed */
+.klaro .cookie-modal-backdrop[style*="display: none"],
+.klaro .cookie-modal-backdrop[style*="opacity: 0"] {
+    pointer-events: none !important;
+}
+
+/* Force hide when werocket-hidden class is added */
+.klaro.werocket-hidden,
+.klaro .cookie-modal.werocket-hidden,
+.klaro .cookie-modal-backdrop.werocket-hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* ==========================================================================
@@ -356,12 +389,31 @@
    Animations
    ========================================================================== */
 
-.klaro .cookie-notice {
+/* Hide ONLY Klaro's default notice banner (not the modal!) to prevent flicker */
+.klaro .cookie-notice:not(.cookie-modal) {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Only show when explicitly visible */
+.klaro .cookie-notice.werocket-klaro-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
     animation: werocket-slide-up 0.3s ease-out !important;
 }
 
+/* Ensure modal is always visible when present */
+.klaro .cookie-modal {
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out !important;
+}
+
 .klaro .cookie-modal .cm-modal {
-    animation: werocket-modal-in 0.3s ease-out !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    animation: werocket-fade-in 0.3s ease-out !important;
 }
 
 @keyframes werocket-slide-up {
@@ -378,11 +430,20 @@
 @keyframes werocket-modal-in {
     from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.9) translateY(-20px);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes werocket-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
 
@@ -421,60 +482,138 @@
 }
 
 /* ==========================================================================
-   Dark Theme Override
+   Dark Theme Override (only when explicitly set)
    ========================================================================== */
 
-.klaro.klaro-dark .cookie-notice,
-.klaro.klaro-dark .cookie-modal .cm-modal {
+body.werocket-cookies-theme-dark .klaro .cookie-notice,
+body.werocket-cookies-theme-dark .klaro .cookie-modal .cm-modal {
     background: #1f2937 !important;
     border-color: #374151 !important;
 }
 
-.klaro.klaro-dark .cookie-notice .cn-body p.title,
-.klaro.klaro-dark .cookie-modal .cm-modal .cm-header h1,
-.klaro.klaro-dark .cm-app .title,
-.klaro.klaro-dark .cm-purpose .cm-purpose-title {
+body.werocket-cookies-theme-dark .klaro .cookie-notice .cn-body p.title,
+body.werocket-cookies-theme-dark .klaro .cookie-modal .cm-modal .cm-header h1,
+body.werocket-cookies-theme-dark .klaro .cm-app .title,
+body.werocket-cookies-theme-dark .klaro .cm-purpose .cm-purpose-title {
     color: #f9fafb !important;
 }
 
-.klaro.klaro-dark .cookie-notice .cn-body p,
-.klaro.klaro-dark .cookie-modal .cm-modal .cm-header p,
-.klaro.klaro-dark .cm-app .cm-app-description,
-.klaro.klaro-dark .cm-purpose .cm-purpose-description {
+body.werocket-cookies-theme-dark .klaro .cookie-notice .cn-body p,
+body.werocket-cookies-theme-dark .klaro .cookie-modal .cm-modal .cm-header p,
+body.werocket-cookies-theme-dark .klaro .cm-app .cm-app-description,
+body.werocket-cookies-theme-dark .klaro .cm-purpose .cm-purpose-description {
     color: #9ca3af !important;
 }
 
-.klaro.klaro-dark .cm-app {
+body.werocket-cookies-theme-dark .klaro .cm-app {
     background: #111827 !important;
     border-color: #374151 !important;
 }
 
-.klaro.klaro-dark .cm-purpose {
+body.werocket-cookies-theme-dark .klaro .cm-purpose {
     background: #111827 !important;
     border-color: #374151 !important;
 }
 
-.klaro.klaro-dark .cookie-modal .cm-modal .cm-footer {
+body.werocket-cookies-theme-dark .klaro .cookie-modal .cm-modal .cm-footer {
     background: #111827 !important;
     border-color: #374151 !important;
 }
 
-.klaro.klaro-dark .cm-btn.cm-btn-danger {
+body.werocket-cookies-theme-dark .klaro .cm-btn.cm-btn-danger {
     border-color: #4b5563 !important;
     color: #d1d5db !important;
 }
 
-.klaro.klaro-dark .cm-btn.cm-btn-danger:hover {
+body.werocket-cookies-theme-dark .klaro .cm-btn.cm-btn-danger:hover {
     background: #374151 !important;
 }
 
-.klaro.klaro-dark .cm-btn.cm-btn-info {
+body.werocket-cookies-theme-dark .klaro .cm-btn.cm-btn-info {
     background: #374151 !important;
     color: #f9fafb !important;
 }
 
-.klaro.klaro-dark .cm-btn.cm-btn-info:hover {
+body.werocket-cookies-theme-dark .klaro .cm-btn.cm-btn-info:hover {
     background: #4b5563 !important;
+}
+
+/* Force light theme by default - override any Klaro dark mode detection */
+.klaro:not(.werocket-force-dark) .cookie-notice,
+.klaro:not(.werocket-force-dark) .cookie-modal .cm-modal {
+    background: var(--werocket-klaro-bg, #ffffff) !important;
+    color: var(--werocket-klaro-text, #1f2937) !important;
+}
+
+.klaro:not(.werocket-force-dark) .cookie-notice .cn-body p,
+.klaro:not(.werocket-force-dark) .cookie-modal .cm-modal p {
+    color: var(--werocket-klaro-text-secondary, #6b7280) !important;
+}
+
+.klaro:not(.werocket-force-dark) .cookie-notice .cn-body p.title,
+.klaro:not(.werocket-force-dark) .cookie-modal .cm-modal h1 {
+    color: var(--werocket-klaro-text, #1f2937) !important;
+}
+
+/* ==========================================================================
+   Light Theme Forced (based on body class)
+   ========================================================================== */
+
+body.werocket-cookies-theme-light .klaro .cookie-notice,
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal {
+    background: var(--werocket-klaro-bg, #ffffff) !important;
+    border-color: var(--werocket-klaro-border, #e5e7eb) !important;
+    color: var(--werocket-klaro-text, #1f2937) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cookie-notice .cn-body p.title,
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal .cm-header h1,
+body.werocket-cookies-theme-light .klaro .cm-app .title,
+body.werocket-cookies-theme-light .klaro .cm-purpose .cm-purpose-title {
+    color: var(--werocket-klaro-text, #1f2937) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cookie-notice .cn-body p,
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal .cm-header p,
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal .cm-body p,
+body.werocket-cookies-theme-light .klaro .cm-app .cm-app-description,
+body.werocket-cookies-theme-light .klaro .cm-purpose .cm-purpose-description {
+    color: var(--werocket-klaro-text-secondary, #6b7280) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cm-app {
+    background: #f9fafb !important;
+    border-color: var(--werocket-klaro-border, #e5e7eb) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cm-purpose {
+    background: #ffffff !important;
+    border-color: var(--werocket-klaro-border, #e5e7eb) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal .cm-footer {
+    background: #f9fafb !important;
+    border-color: var(--werocket-klaro-border, #e5e7eb) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal .cm-header {
+    background: var(--werocket-klaro-bg, #ffffff) !important;
+    border-bottom-color: var(--werocket-klaro-border, #e5e7eb) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cm-btn.cm-btn-info {
+    background: #f3f4f6 !important;
+    color: var(--werocket-klaro-text, #1f2937) !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cm-btn.cm-btn-danger {
+    border-color: var(--werocket-klaro-border, #e5e7eb) !important;
+    color: var(--werocket-klaro-text-secondary, #6b7280) !important;
+    background: transparent !important;
+}
+
+body.werocket-cookies-theme-light .klaro .cookie-modal .cm-modal .cm-close {
+    color: var(--werocket-klaro-text-secondary, #6b7280) !important;
 }
 
 /* ==========================================================================

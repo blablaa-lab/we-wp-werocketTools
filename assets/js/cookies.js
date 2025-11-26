@@ -49,15 +49,37 @@
          * This is the main method to open cookie preferences
          */
         showSettings: function() {
-            // Remove any existing custom notice
-            var existingNotice = document.getElementById('werocket-cookie-notice');
-            if (existingNotice) {
-                existingNotice.remove();
+            // Remove ALL existing custom notices (in case of duplicates)
+            var existingNotices = document.querySelectorAll('#werocket-cookie-notice, .werocket-notice');
+            existingNotices.forEach(function(notice) {
+                notice.remove();
+            });
+
+            // Clean up duplicate Klaro modals if any
+            var klaroModals = document.querySelectorAll('.klaro .cookie-modal');
+            if (klaroModals.length > 1) {
+                console.warn('WeRocket Cookies: Multiple Klaro modals detected, cleaning up');
+                for (var i = 1; i < klaroModals.length; i++) {
+                    var parent = klaroModals[i].closest('.klaro');
+                    if (parent) parent.remove();
+                }
             }
 
             // Show Klaro modal
             if (typeof klaro !== 'undefined' && typeof klaro.show === 'function') {
                 klaro.show();
+
+                // Force correct theme after modal opens
+                setTimeout(function() {
+                    var klaroElements = document.querySelectorAll('.klaro');
+                    klaroElements.forEach(function(el) {
+                        el.classList.remove('klaro-dark');
+                        // Check body class to determine theme
+                        if (document.body.classList.contains('werocket-cookies-theme-dark')) {
+                            el.classList.add('werocket-force-dark');
+                        }
+                    });
+                }, 50);
             } else {
                 console.warn('WeRocket Cookies: Klaro not loaded');
             }
@@ -93,9 +115,11 @@
                     manager.saveAndApplyConsents(true);
                 }
             }
-            // Remove notice if exists
-            var notice = document.getElementById('werocket-cookie-notice');
-            if (notice) notice.remove();
+            // Remove all notices (in case of duplicates)
+            var notices = document.querySelectorAll('#werocket-cookie-notice, .werocket-notice');
+            notices.forEach(function(notice) {
+                notice.remove();
+            });
         },
 
         /**
@@ -108,9 +132,11 @@
                     manager.saveAndApplyConsents(false);
                 }
             }
-            // Remove notice if exists
-            var notice = document.getElementById('werocket-cookie-notice');
-            if (notice) notice.remove();
+            // Remove all notices (in case of duplicates)
+            var notices = document.querySelectorAll('#werocket-cookie-notice, .werocket-notice');
+            notices.forEach(function(notice) {
+                notice.remove();
+            });
         },
 
         /**
