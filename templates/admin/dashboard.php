@@ -9,12 +9,12 @@
 defined('ABSPATH') || exit;
 ?>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     <?php foreach ($modules as $module): ?>
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+                    <div class="w-20 h-20 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
                         <?php echo $module->get_icon(); ?>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">

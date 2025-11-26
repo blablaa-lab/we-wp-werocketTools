@@ -14,16 +14,17 @@ $active_modules = $options['active_modules'] ?? [];
 
 <div id="werocket-tools-app" class="werocket-wrap">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-8 rounded-lg mb-6 mt-4 mr-4">
+    <div class="bg-[url(<?php echo esc_url(WEROCKET_TOOLS_PLUGIN_URL . 'assets/images/banner.jpg'); ?>)] bg-cover bg-center px-20 py-32 rounded-lg mb-6 mt-4 mr-4">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                <!-- <h1 class="text-3xl font-bold text-white flex items-center gap-3">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
                     WeRocket Tools
                 </h1>
-                <p class="text-emerald-100 mt-2"><?php esc_html_e('Suite d\'outils pour votre site WordPress', 'werocket-tools'); ?></p>
+                <p class="text-emerald-100 mt-2"><?php esc_html_e('Suite d\'outils pour votre site WordPress', 'werocket-tools'); ?></p> -->
+                <img src="<?php echo esc_url(WEROCKET_TOOLS_PLUGIN_URL . 'assets/images/logo.png'); ?>" alt="WeRocket Tools" class="h-16">
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
