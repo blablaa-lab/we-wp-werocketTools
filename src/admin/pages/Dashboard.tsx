@@ -10,7 +10,7 @@ interface Props {
 export function Dashboard({ modules, onToggle, onNavigate }: Props) {
   if (!modules.length) {
     return (
-      <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500 text-sm">
+      <div className="bg-card rounded-xl border p-8 text-center text-muted-foreground text-sm">
         Aucun module disponible.
       </div>
     )

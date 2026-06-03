@@ -306,9 +306,9 @@ export function CookiesSettings() {
               <CardDescription>Activez les services présents sur votre site et configurez leurs paramètres</CardDescription>
             </CardHeader>
             <CardContent>
-              <Accordion type="multiple" className="space-y-1">
+              <Accordion type="multiple">
                 {services.map((svc, i) => (
-                  <AccordionItem key={svc.name} value={svc.name} className="border rounded-lg px-3">
+                  <AccordionItem key={svc.name} value={svc.name}>
                     <AccordionTrigger className="hover:no-underline py-3">
                       <div className="flex items-center gap-3 flex-1">
                         <div onClick={e => e.stopPropagation()}>

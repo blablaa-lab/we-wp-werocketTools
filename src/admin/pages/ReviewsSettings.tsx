@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -116,12 +115,6 @@ export function ReviewsSettings() {
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={saving} className="gap-2">
-          {saving && <IconLoader2 size={15} className="animate-spin" />}
-          Enregistrer
-        </Button>
-      </div>
     </form>
   )
 }

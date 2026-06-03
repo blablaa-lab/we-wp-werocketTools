@@ -12,8 +12,8 @@ export function Header() {
       <div className="flex items-center justify-between">
         <img src={`${pluginUrl}assets/images/logo.png`} alt="WeRocket Tools" className="h-16" />
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
-            <IconBolt size={20} className="text-teal-600" />
+          <div className="w-10 h-10 bg-primary/15 rounded-full flex items-center justify-center">
+            <IconBolt size={20} className="text-primary" />
           </div>
           <span className="text-xl text-white">v {version}</span>
         </div>

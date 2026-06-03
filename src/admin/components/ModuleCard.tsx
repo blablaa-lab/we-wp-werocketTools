@@ -30,21 +30,20 @@ export function ModuleCard({ module, onToggle, onNavigate }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow flex flex-col gap-4">
-      {/* Header : icône + nom + toggle */}
+    <div className="bg-card rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0"
+            className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0"
             dangerouslySetInnerHTML={{ __html: module.icon }}
           />
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">{module.name}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{module.name}</h3>
             <span className={cn(
               'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1',
               module.active
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-gray-100 text-gray-500'
+                ? 'bg-primary/15 text-primary'
+                : 'bg-muted text-muted-foreground'
             )}>
               {module.active ? 'Actif' : 'Inactif'}
             </span>
@@ -58,14 +57,12 @@ export function ModuleCard({ module, onToggle, onNavigate }: Props) {
         />
       </div>
 
-      {/* Description */}
-      <p className="text-sm text-gray-500 leading-relaxed flex-1">{module.description}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed flex-1">{module.description}</p>
 
-      {/* Bouton configurer */}
       <Button
         variant="outline"
         size="sm"
-        className="w-full gap-2 text-gray-600 hover:text-emerald-600 hover:border-emerald-300"
+        className="w-full gap-2 hover:text-primary hover:border-primary/30"
         onClick={() => onNavigate(module.id)}
       >
         <IconSettings size={15} />

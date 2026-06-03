@@ -19,12 +19,12 @@ export function TabsNav({ modules, currentTab, onNavigate }: Props) {
     cn(
       'flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors cursor-pointer select-none no-underline',
       active
-        ? 'border-emerald-500 text-emerald-600'
-        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+        ? 'border-primary text-primary'
+        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
     )
 
   return (
-    <nav className="bg-white rounded-lg shadow mr-4 mb-6 flex items-center" aria-label="Onglets">
+    <nav className="bg-card rounded-xl border shadow-sm mr-4 mb-6 flex items-center" aria-label="Onglets">
       <button type="button" className={linkClass(currentTab === 'dashboard')} onClick={() => onNavigate('dashboard')}>
         <IconLayoutDashboard size={20} />
         Tableau de bord

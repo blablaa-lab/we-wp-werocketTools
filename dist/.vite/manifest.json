@@ -1,30 +1,34 @@
 {
-  "_IconPhone-BdKl-9z5.js": {
-    "file": "assets/IconPhone-BdKl-9z5.js",
+  "_IconPhone-DAsSIdHl.js": {
+    "file": "assets/IconPhone-DAsSIdHl.js",
     "name": "IconPhone",
     "imports": [
-      "_createReactComponent-DE5OStMo.js"
+      "_createReactComponent-DiejR-2T.js"
     ]
   },
-  "_IconStarFilled-C5sRcpbR.js": {
-    "file": "assets/IconStarFilled-C5sRcpbR.js",
+  "_IconStarFilled-CV8P5pKR.js": {
+    "file": "assets/IconStarFilled-CV8P5pKR.js",
     "name": "IconStarFilled",
     "imports": [
-      "_createReactComponent-DE5OStMo.js"
+      "_createReactComponent-DiejR-2T.js"
     ]
   },
-  "_accordion-DI0KAHEv.js": {
-    "file": "assets/accordion-DI0KAHEv.js",
+  "_accordion-BtrB2kPj.js": {
+    "file": "assets/accordion-BtrB2kPj.js",
     "name": "accordion",
     "imports": [
-      "_createReactComponent-DE5OStMo.js"
+      "_createReactComponent-DiejR-2T.js"
     ]
   },
-  "_createReactComponent-DE5OStMo.js": {
-    "file": "assets/createReactComponent-DE5OStMo.js",
+  "_createReactComponent-CnpGmu_1.css": {
+    "file": "assets/createReactComponent-CnpGmu_1.css",
+    "src": "_createReactComponent-CnpGmu_1.css"
+  },
+  "_createReactComponent-DiejR-2T.js": {
+    "file": "assets/createReactComponent-DiejR-2T.js",
     "name": "createReactComponent",
     "css": [
-      "assets/createReactComponent-seeT6kus.css"
+      "assets/createReactComponent-CnpGmu_1.css"
     ],
     "assets": [
       "assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2",
@@ -35,10 +39,6 @@
       "assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2",
       "assets/inter-latin-wght-normal-Dx4kXJAl.woff2"
     ]
-  },
-  "_createReactComponent-seeT6kus.css": {
-    "file": "assets/createReactComponent-seeT6kus.css",
-    "src": "_createReactComponent-seeT6kus.css"
   },
   "node_modules/@fontsource-variable/inter/files/inter-cyrillic-ext-wght-normal.woff2": {
     "file": "assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2",
@@ -69,45 +69,45 @@
     "src": "node_modules/@fontsource-variable/inter/files/inter-vietnamese-wght-normal.woff2"
   },
   "src/admin/main.tsx": {
-    "file": "assets/admin-B4PhOwqH.js",
+    "file": "assets/admin-VR1IGPBC.js",
     "name": "admin",
     "src": "src/admin/main.tsx",
     "isEntry": true,
     "imports": [
-      "_createReactComponent-DE5OStMo.js",
-      "_accordion-DI0KAHEv.js",
-      "_IconStarFilled-C5sRcpbR.js",
-      "_IconPhone-BdKl-9z5.js"
+      "_createReactComponent-DiejR-2T.js",
+      "_accordion-BtrB2kPj.js",
+      "_IconStarFilled-CV8P5pKR.js",
+      "_IconPhone-DAsSIdHl.js"
     ]
   },
   "src/frontend/business/main.tsx": {
-    "file": "assets/business-iOFBtZ8O.js",
+    "file": "assets/business-C3suZatX.js",
     "name": "business",
     "src": "src/frontend/business/main.tsx",
     "isEntry": true,
     "imports": [
-      "_createReactComponent-DE5OStMo.js",
-      "_IconPhone-BdKl-9z5.js"
+      "_createReactComponent-DiejR-2T.js",
+      "_IconPhone-DAsSIdHl.js"
     ]
   },
   "src/frontend/cookies/main.tsx": {
-    "file": "assets/cookies-B7kAWHYQ.js",
+    "file": "assets/cookies-DCX8Lk5r.js",
     "name": "cookies",
     "src": "src/frontend/cookies/main.tsx",
     "isEntry": true,
     "imports": [
-      "_createReactComponent-DE5OStMo.js",
-      "_accordion-DI0KAHEv.js"
+      "_createReactComponent-DiejR-2T.js",
+      "_accordion-BtrB2kPj.js"
     ]
   },
   "src/frontend/reviews/main.tsx": {
-    "file": "assets/reviews-CKOOmsNz.js",
+    "file": "assets/reviews-BnwdjGI6.js",
     "name": "reviews",
     "src": "src/frontend/reviews/main.tsx",
     "isEntry": true,
     "imports": [
-      "_createReactComponent-DE5OStMo.js",
-      "_IconStarFilled-C5sRcpbR.js"
+      "_createReactComponent-DiejR-2T.js",
+      "_IconStarFilled-CV8P5pKR.js"
     ]
   }
 }
