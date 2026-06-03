@@ -59,11 +59,11 @@ export function ModuleCard({ module, onToggle, onNavigate }: Props) {
       <CardFooter>
         <Button
           variant="outline"
-          size="sm"
-          className="w-full gap-2"
+          size="lg"
+          className="w-full h-11 gap-2 text-[15px]"
           onClick={() => onNavigate(module.id)}
         >
-          <IconSettings />
+          <IconSettings className="size-[18px]" />
           Configurer
         </Button>
       </CardFooter>

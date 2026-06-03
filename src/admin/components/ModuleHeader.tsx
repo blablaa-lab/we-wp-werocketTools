@@ -30,8 +30,8 @@ export function ModuleHeader({ title, description, saving, active, onToggle }: P
                 <span className="text-sm font-medium text-foreground">Actif</span>
               </label>
             )}
-            <Button type="submit" disabled={saving} className="gap-2">
-              {saving ? <IconLoader2 className="animate-spin" /> : <IconDeviceFloppy />}
+            <Button type="submit" size="lg" disabled={saving} className="h-11 gap-2 text-[15px] px-5">
+              {saving ? <IconLoader2 className="size-[18px] animate-spin" /> : <IconDeviceFloppy className="size-[18px]" />}
               {saving ? 'Enregistrement...' : 'Enregistrer'}
             </Button>
           </div>
