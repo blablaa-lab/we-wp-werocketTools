@@ -138,23 +138,44 @@ export function CookiesSettings() {
 
         {/* ─── Comportement ─── */}
         <TabsContent value="behavior">
-          <Card>
-            <CardHeader>
-              <CardTitle>Comportement du bandeau</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <SwitchRow label="Consentement obligatoire" description="Bloque l'accès au site jusqu'au consentement" name="must_consent" watch={watch} setValue={setValue} />
-              <SwitchRow label="Bouton Tout accepter" description="Afficher le bouton d'acceptation globale" name="accept_all" watch={watch} setValue={setValue} />
-              <SwitchRow label="Masquer le bouton Tout refuser" name="hide_decline_all" watch={watch} setValue={setValue} />
-              <SwitchRow label="Masquer le lien En savoir plus" name="hide_learn_more" watch={watch} setValue={setValue} />
-              <SwitchRow label="Masquer le toggle global" name="hide_toggle_all" watch={watch} setValue={setValue} />
-              <SwitchRow label="Activer par défaut" description="Les services sont activés par défaut" name="default" watch={watch} setValue={setValue} />
-              <SwitchRow label="Grouper par finalité" name="group_by_purpose" watch={watch} setValue={setValue} />
-              <SwitchRow label="Afficher comme modale" name="notice_as_modal" watch={watch} setValue={setValue} />
-              <SwitchRow label="Inverser les boutons" name="flip_buttons" watch={watch} setValue={setValue} />
-              <SwitchRow label="Autoriser le HTML dans les textes" name="html_texts" watch={watch} setValue={setValue} />
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Politique de consentement</CardTitle>
+                <CardDescription>Comment le bandeau interagit avec les visiteurs</CardDescription>
+              </CardHeader>
+              <CardContent className="divide-y divide-border/60 py-0">
+                <SwitchRow label="Consentement obligatoire" description="Bloque l'accès au site jusqu'au consentement" name="must_consent" watch={watch} setValue={setValue} />
+                <SwitchRow label="Bouton Tout accepter" description="Afficher le bouton d'acceptation globale" name="accept_all" watch={watch} setValue={setValue} />
+                <SwitchRow label="Activer par défaut" description="Les services sont activés par défaut (opt-out)" name="default" watch={watch} setValue={setValue} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Éléments visibles</CardTitle>
+                <CardDescription>Masquer certains boutons ou liens du bandeau</CardDescription>
+              </CardHeader>
+              <CardContent className="divide-y divide-border/60 py-0">
+                <SwitchRow label="Masquer le bouton « Tout refuser »" name="hide_decline_all" watch={watch} setValue={setValue} />
+                <SwitchRow label="Masquer le lien « En savoir plus »" name="hide_learn_more" watch={watch} setValue={setValue} />
+                <SwitchRow label="Masquer le toggle global" description="Le bouton qui active/désactive tout d'un coup" name="hide_toggle_all" watch={watch} setValue={setValue} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Disposition &amp; rendu</CardTitle>
+                <CardDescription>Affichage et organisation visuelle du bandeau</CardDescription>
+              </CardHeader>
+              <CardContent className="divide-y divide-border/60 py-0">
+                <SwitchRow label="Afficher comme modale" description="Centre le bandeau avec un overlay plein écran" name="notice_as_modal" watch={watch} setValue={setValue} />
+                <SwitchRow label="Grouper par finalité" description="Regroupe les services par catégorie dans la modale détails" name="group_by_purpose" watch={watch} setValue={setValue} />
+                <SwitchRow label="Inverser les boutons" description="Inverse l'ordre Accepter / Refuser" name="flip_buttons" watch={watch} setValue={setValue} />
+                <SwitchRow label="Autoriser le HTML dans les textes" description="Interprète les balises HTML des descriptions" name="html_texts" watch={watch} setValue={setValue} />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* ─── Apparence ─── */}
@@ -485,13 +506,25 @@ function SwitchRow({ label, description, name, watch, setValue }: {
   watch: ReturnType<typeof useForm<FormValues>>['watch']
   setValue: ReturnType<typeof useForm<FormValues>>['setValue']
 }) {
+  const checked = !!watch(name)
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <Label className="text-sm cursor-pointer">{label}</Label>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+    <label
+      className="group flex items-center justify-between gap-4 py-4 -mx-2 px-2 rounded-2xl cursor-pointer transition-colors hover:bg-muted/40"
+    >
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-foreground">{label}</span>
+          {checked && (
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+              On
+            </span>
+          )}
+        </div>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
+        )}
       </div>
-      <Switch checked={!!watch(name)} onCheckedChange={v => setValue(name, v as never)} />
-    </div>
+      <Switch checked={checked} onCheckedChange={v => setValue(name, v as never)} />
+    </label>
   )
 }

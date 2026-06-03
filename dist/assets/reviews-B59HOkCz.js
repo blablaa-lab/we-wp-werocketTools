@@ -1,4 +1,4 @@
-import{c as p,r as n,j as t,a as h}from"./createReactComponent-DFJk8xu2.js";import{I as j}from"./IconStarFilled-C3jdIBPH.js";/**
+import{c as p,r as n,j as t,a as h}from"./createReactComponent-iwjPC-F7.js";import{I as j}from"./IconStarFilled-BqekNyqh.js";/**
  * @license @tabler/icons-react v3.44.0 - MIT
  *
  * This source code is licensed under the MIT license.
