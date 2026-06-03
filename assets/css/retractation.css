@@ -28,8 +28,8 @@
     --wr-shadow: 0 4px 24px -8px rgba(26, 29, 31, 0.08), 0 2px 6px rgba(26, 29, 31, 0.04);
     --wr-shadow-lg: 0 24px 64px -24px rgba(26, 29, 31, 0.18), 0 8px 24px -12px rgba(26, 29, 31, 0.08);
 
-    --wr-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-    --wr-font-body: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    --wr-font-display: 'Inter', 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --wr-font-body: 'Inter', 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
     max-width: 720px;
     margin: 2.5rem auto;
@@ -86,18 +86,17 @@
 
 .wr-retractation-app__title {
     font-family: var(--wr-font-display);
-    font-size: clamp(1.85rem, 5.5vw, 2.6rem);
-    font-weight: 400;
-    line-height: 1.08;
-    letter-spacing: -0.02em;
+    font-size: clamp(1.7rem, 5.2vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
     color: var(--wr-ink);
     margin: 0 0 0.9rem;
-    font-feature-settings: "ss01", "ss03";
 }
 
 .wr-retractation-app__title em {
-    font-style: italic;
-    font-weight: 300;
+    font-style: normal;
+    font-weight: 500;
     color: var(--wr-accent);
 }
 
@@ -140,10 +139,10 @@
     height: 1.4rem;
     background: var(--wr-surface);
     color: var(--wr-accent);
-    font-family: var(--wr-font-display);
-    font-size: 11.5px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -231,10 +230,10 @@
 
 .wr-retractation-app__panel-title {
     font-family: var(--wr-font-display);
-    font-size: clamp(1.4rem, 2.6vw, 1.85rem);
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.015em;
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     margin: 0 0 0.4rem;
     color: var(--wr-ink);
 }
@@ -603,15 +602,16 @@
 
 .wr-success__title {
     font-family: var(--wr-font-display);
-    font-size: clamp(1.7rem, 3.2vw, 2.2rem);
-    font-weight: 400;
+    font-size: clamp(1.55rem, 3vw, 2rem);
+    font-weight: 600;
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     margin: 0 0 0.8rem;
 }
 
 .wr-success__title em {
-    font-style: italic;
+    font-style: normal;
+    font-weight: 500;
     color: var(--wr-accent);
 }
 
@@ -631,7 +631,6 @@
     background: var(--wr-surface-alt);
     border: 1px dashed var(--wr-border-strong);
     border-radius: var(--wr-radius);
-    font-family: var(--wr-font-display);
     font-size: 14px;
     color: var(--wr-ink);
     margin-bottom: 2rem;
@@ -639,13 +638,13 @@
 
 .wr-ticket strong {
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--wr-accent);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    font-variant-numeric: tabular-nums;
 }
 
 .wr-ticket-label {
-    font-family: var(--wr-font-body);
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;

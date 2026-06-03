@@ -113,8 +113,8 @@ class Emails {
         $bg_alt      = Frontend::darken_hex($bg_warm, 0.97);
         $border      = '#E8EAED';
 
-        $font_display = "'Fraunces', Georgia, 'Times New Roman', serif";
-        $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+        $font_display = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+        $font_body    = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
         ob_start();
         ?>
@@ -166,7 +166,7 @@ class Emails {
                             </tr>
                         </table>
 
-                        <h1 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:26px;font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:<?php echo esc_attr($ink); ?>;margin:18px 0 6px;">
+                        <h1 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:22px;font-weight:700;line-height:1.15;letter-spacing:-0.025em;color:<?php echo esc_attr($ink); ?>;margin:18px 0 6px;">
                             <?php esc_html_e('Nouvelle demande de rétractation', 'werocket-tools'); ?>
                         </h1>
 
@@ -184,7 +184,7 @@ class Emails {
                                                 <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:<?php echo esc_attr($ink_subtle); ?>;margin-bottom:3px;">
                                                     <?php esc_html_e('Demande', 'werocket-tools'); ?>
                                                 </div>
-                                                <div style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:500;color:<?php echo esc_attr($accent); ?>;line-height:1;">
+                                                <div style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:<?php echo esc_attr($accent); ?>;line-height:1;">
                                                     #<?php echo esc_html((string) $request['id']); ?>
                                                 </div>
                                             </td>
@@ -193,11 +193,11 @@ class Emails {
                                                     <?php esc_html_e('Commande', 'werocket-tools'); ?>
                                                 </div>
                                                 <?php if ($order_url) : ?>
-                                                    <a href="<?php echo esc_url($order_url); ?>" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:500;color:<?php echo esc_attr($ink); ?>;line-height:1;text-decoration:none;">
+                                                    <a href="<?php echo esc_url($order_url); ?>" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:<?php echo esc_attr($ink); ?>;line-height:1;text-decoration:none;">
                                                         #<?php echo esc_html((string) ($order ? $order->get_order_number() : (string) $request['order_id'])); ?>
                                                     </a>
                                                 <?php else : ?>
-                                                    <span style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:500;color:<?php echo esc_attr($ink); ?>;line-height:1;">
+                                                    <span style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:<?php echo esc_attr($ink); ?>;line-height:1;">
                                                         #<?php echo esc_html((string) $request['order_id']); ?>
                                                     </span>
                                                 <?php endif; ?>
@@ -206,7 +206,7 @@ class Emails {
                                                 <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:<?php echo esc_attr($ink_subtle); ?>;margin-bottom:3px;">
                                                     <?php esc_html_e('Portée', 'werocket-tools'); ?>
                                                 </div>
-                                                <div style="font-family:<?php echo esc_attr($font_display); ?>;font-size:20px;font-weight:500;color:<?php echo $request['scope'] === 'total' ? esc_attr($accent) : '#B06000'; ?>;line-height:1;">
+                                                <div style="font-family:<?php echo esc_attr($font_display); ?>;font-size:18px;font-weight:600;letter-spacing:-0.015em;color:<?php echo $request['scope'] === 'total' ? esc_attr($accent) : '#B06000'; ?>;line-height:1;">
                                                     <?php echo esc_html($scope_label); ?>
                                                 </div>
                                             </td>
@@ -217,7 +217,7 @@ class Emails {
                         </table>
 
                         <!-- Customer info -->
-                        <h2 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:15px;font-weight:500;color:<?php echo esc_attr($ink); ?>;margin:0 0 8px;">
+                        <h2 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:<?php echo esc_attr($ink_muted); ?>;margin:0 0 8px;">
                             <?php esc_html_e('Client', 'werocket-tools'); ?>
                         </h2>
                         <p style="font-size:14px;color:<?php echo esc_attr($ink); ?>;margin:0 0 4px;">
@@ -230,7 +230,7 @@ class Emails {
                         </p>
 
                         <?php if (!empty($items)) : ?>
-                            <h2 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:15px;font-weight:500;color:<?php echo esc_attr($ink); ?>;margin:0 0 8px;">
+                            <h2 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:<?php echo esc_attr($ink_muted); ?>;margin:0 0 8px;">
                                 <?php esc_html_e('Articles concernés', 'werocket-tools'); ?>
                             </h2>
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:<?php echo esc_attr($surface); ?>;border:1px solid <?php echo esc_attr($border); ?>;border-radius:10px;margin:0 0 18px;">
@@ -250,7 +250,7 @@ class Emails {
                         <?php endif; ?>
 
                         <?php if (!empty($request['reason'])) : ?>
-                            <h2 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:15px;font-weight:500;color:<?php echo esc_attr($ink); ?>;margin:0 0 8px;">
+                            <h2 style="font-family:<?php echo esc_attr($font_display); ?>;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:<?php echo esc_attr($ink_muted); ?>;margin:0 0 8px;">
                                 <?php esc_html_e('Motif communiqué', 'werocket-tools'); ?>
                             </h2>
                             <div style="font-style:italic;font-size:13.5px;line-height:1.6;color:<?php echo esc_attr($ink_muted); ?>;border-left:3px solid <?php echo esc_attr($accent_soft); ?>;padding:2px 0 2px 14px;margin:0 0 22px;">

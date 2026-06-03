@@ -35,8 +35,8 @@ $bg_alt      = \WeRocket\Tools\Modules\Retractation\Frontend::darken_hex($bg_war
 $border      = '#E8EAED';
 $logo_url    = (string) ($wr_settings['email_logo_url'] ?? '');
 
-$font_display = "'Fraunces', Georgia, 'Times New Roman', serif";
-$font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+$font_display = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+$font_body    = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 ?><!DOCTYPE html>
 <html lang="<?php echo esc_attr(get_bloginfo('language')); ?>">
@@ -116,7 +116,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                         </table>
 
                         <!-- Hero serif -->
-                        <h1 class="wr-mail-title" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:34px;font-weight:400;line-height:1.1;letter-spacing:-0.02em;color:<?php echo esc_attr($ink); ?>;margin:0 0 12px;">
+                        <h1 class="wr-mail-title" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:28px;font-weight:700;line-height:1.15;letter-spacing:-0.025em;color:<?php echo esc_attr($ink); ?>;margin:0 0 12px;">
                             <?php
                             printf(
                                 /* translators: %s : prénom client */
@@ -140,7 +140,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                                                 <div style="font-family:<?php echo esc_attr($font_body); ?>;font-size:10.5px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:<?php echo esc_attr($ink_subtle); ?>;margin-bottom:4px;">
                                                     <?php esc_html_e('Référence demande', 'werocket-tools'); ?>
                                                 </div>
-                                                <div style="font-family:<?php echo esc_attr($font_display); ?>;font-size:30px;font-weight:500;letter-spacing:-0.01em;color:<?php echo esc_attr($accent); ?>;line-height:1.05;">
+                                                <div style="font-family:<?php echo esc_attr($font_display); ?>;font-size:26px;font-weight:700;letter-spacing:-0.025em;color:<?php echo esc_attr($accent); ?>;line-height:1.05;font-variant-numeric:tabular-nums;">
                                                     #<?php echo esc_html((string) $request['id']); ?>
                                                 </div>
                                             </td>
@@ -159,7 +159,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                         </table>
 
                         <!-- ── Meta info ── -->
-                        <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:18px;font-weight:500;letter-spacing:-0.01em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
+                        <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:17px;font-weight:600;letter-spacing:-0.015em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
                             <?php esc_html_e('Détails de votre demande', 'werocket-tools'); ?>
                         </h2>
                         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="wr-mail-meta-row" style="margin:0 0 28px;">
@@ -189,7 +189,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                         </table>
 
                         <?php if (!empty($items)) : ?>
-                            <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:18px;font-weight:500;letter-spacing:-0.01em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
+                            <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:17px;font-weight:600;letter-spacing:-0.015em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
                                 <?php esc_html_e('Articles concernés', 'werocket-tools'); ?>
                             </h2>
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:<?php echo esc_attr($surface); ?>;border:1px solid <?php echo esc_attr($border); ?>;border-radius:14px;margin:0 0 28px;">
@@ -217,7 +217,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                         <?php endif; ?>
 
                         <?php if (!empty($request['reason'])) : ?>
-                            <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:18px;font-weight:500;letter-spacing:-0.01em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
+                            <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:17px;font-weight:600;letter-spacing:-0.015em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
                                 <?php esc_html_e('Motif communiqué', 'werocket-tools'); ?>
                                 <span style="font-family:<?php echo esc_attr($font_body); ?>;font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:<?php echo esc_attr($ink_subtle); ?>;background:<?php echo esc_attr($bg_alt); ?>;padding:2px 8px;border-radius:4px;margin-left:6px;vertical-align:middle;">
                                     <?php esc_html_e('Facultatif', 'werocket-tools'); ?>
@@ -229,7 +229,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                         <?php endif; ?>
 
                         <!-- ── Timeline "Que se passe-t-il maintenant ?" ── -->
-                        <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:18px;font-weight:500;letter-spacing:-0.01em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
+                        <h2 class="wr-mail-h2" style="font-family:<?php echo esc_attr($font_display); ?>;font-size:17px;font-weight:600;letter-spacing:-0.015em;color:<?php echo esc_attr($ink); ?>;margin:0 0 14px;">
                             <?php esc_html_e('Et maintenant ?', 'werocket-tools'); ?>
                         </h2>
                         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 32px;">
@@ -270,7 +270,7 @@ $font_body    = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helveti
                         <p style="font-family:<?php echo esc_attr($font_body); ?>;font-size:14.5px;line-height:1.6;color:<?php echo esc_attr($ink_muted); ?>;margin:0 0 8px;">
                             <?php esc_html_e('Vous pouvez répondre directement à cet email pour toute question.', 'werocket-tools'); ?>
                         </p>
-                        <p style="font-family:<?php echo esc_attr($font_display); ?>;font-style:italic;font-size:15px;color:<?php echo esc_attr($ink); ?>;margin:14px 0 0;">
+                        <p style="font-family:<?php echo esc_attr($font_body); ?>;font-size:14.5px;font-weight:500;color:<?php echo esc_attr($ink); ?>;margin:14px 0 0;">
                             — <?php echo esc_html__('L\'équipe', 'werocket-tools') . ' ' . esc_html($site_name); ?>
                         </p>
 
