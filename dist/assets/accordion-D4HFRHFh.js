@@ -1,4 +1,4 @@
-import{b as Or,g as Mr,c as Se,r as c,j as C,R as M,d as Mt}from"./createReactComponent-CKcascvb.js";var Tt=Or();const Tr=Mr(Tt);/**
+import{b as Or,g as Mr,c as Se,r as c,j as C,R as M,d as Mt}from"./createReactComponent-DFJk8xu2.js";var Tt=Or();const Tr=Mr(Tt);/**
  * @license @tabler/icons-react v3.44.0 - MIT
  *
  * This source code is licensed under the MIT license.

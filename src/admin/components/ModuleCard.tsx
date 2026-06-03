@@ -31,7 +31,7 @@ export function ModuleCard({ module, onToggle, onNavigate }: Props) {
   }
 
   return (
-    <Card className="hover:ring-foreground/10 transition-all">
+    <Card className="h-full hover:ring-foreground/10 transition-all">
       <CardHeader>
         <div className="flex items-center gap-3">
           <div
@@ -49,14 +49,14 @@ export function ModuleCard({ module, onToggle, onNavigate }: Props) {
           />
         </CardAction>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex-1 space-y-3">
         <Badge variant={module.active ? 'default' : 'secondary'}>
           <span className={`w-1.5 h-1.5 rounded-full ${module.active ? 'bg-primary-foreground' : 'bg-muted-foreground/60'}`} />
           {module.active ? 'Actif' : 'Inactif'}
         </Badge>
         <CardDescription className="leading-relaxed">{module.description}</CardDescription>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="mt-auto">
         <Button
           variant="outline"
           size="lg"
