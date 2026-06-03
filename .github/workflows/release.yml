@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Bump patch version
+        id: bump
+        run: |
+          CURRENT=$(grep -E "^\s*\*\s*Version:" werocket-tools.php | head -1 | sed 's/.*Version:[[:space:]]*//' | tr -d ' \r')
+          IFS='.' read -ra V <<< "$CURRENT"
+          NEW="${V[0]}.${V[1]}.$((V[2]+1))"
+
+          # Update header Version:
+          sed -i "s/^\( \* Version:\s*\).*/\1$NEW/" werocket-tools.php
+          # Update define constant
+          sed -i "s/define('WEROCKET_TOOLS_VERSION', '.*')/define('WEROCKET_TOOLS_VERSION', '$NEW')/" werocket-tools.php
+          # Update package.json (without tagging via npm)
+          npm version "$NEW" --no-git-tag-version --allow-same-version
+
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add werocket-tools.php package.json
+          git commit -m "chore: release v${{ steps.bump.outputs.version }} [skip ci]"
+          git tag "v${{ steps.bump.outputs.version }}"
+          git push --follow-tags
+
+      - name: Package release ZIP
+        run: |
+          mkdir -p /tmp/release/werocket-tools
+          rsync -a --exclude-from='.distignore' . /tmp/release/werocket-tools/
+          cd /tmp/release
+          zip -r /tmp/werocket-tools.zip werocket-tools
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.bump.outputs.version }}
+          name: v${{ steps.bump.outputs.version }}
+          files: /tmp/werocket-tools.zip
+          generate_release_notes: true

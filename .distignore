@@ -1,0 +1,43 @@
+# Fichiers/dossiers exclus du ZIP de release (ne pas déployer sur les sites WP)
+
+# Source frontend (inutile en prod, dist/ est buildé en CI)
+src/
+
+# Dépendances dev
+node_modules/
+vendor/
+
+# Config build/dev
+vite.config.ts
+tailwind.config.js
+postcss.config.js
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+components.json
+package.json
+package-lock.json
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+
+# Environnement local
+.env
+.env.local
+.env.example
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.bak
+
+# Dev & doc
+CLAUDE.md
+.distignore

@@ -28,6 +28,18 @@ define('WEROCKET_TOOLS_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WEROCKET_TOOLS_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('WEROCKET_TOOLS_DIST_URL', plugin_dir_url(__FILE__) . 'dist/');
 
+// Auto-update depuis GitHub via Plugin Update Checker v5
+require_once WEROCKET_TOOLS_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
+$werocket_updater = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+    'https://github.com/blablaa-lab/we-wp-werocketTools/',
+    __FILE__,
+    'werocket-tools'
+);
+$werocket_updater->getVcsApi()->enableReleaseAssets();
+if (defined('WEROCKET_TOOLS_GH_TOKEN') && WEROCKET_TOOLS_GH_TOKEN) {
+    $werocket_updater->setAuthentication(WEROCKET_TOOLS_GH_TOKEN);
+}
+
 // Autoloader
 require_once WEROCKET_TOOLS_PLUGIN_DIR . 'includes/Autoloader.php';
 Autoloader::register();

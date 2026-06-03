@@ -73,8 +73,28 @@ abstract class AbstractModule implements ModuleInterface {
     }
 
     public function save_settings(array $data): bool {
+        // WP REST API applique wp_slash() automatiquement sur get_json_params()
+        // → on retire les slashes ajoutés. La boucle nettoie également les valeurs
+        // déjà polluées par les saves précédents (avant ce fix).
+        $data = $this->deep_unslash($data);
         $sanitized = $this->sanitize_settings($data);
         return update_option($this->option_key, $sanitized);
+    }
+
+    private function deep_unslash(mixed $value): mixed {
+        if (is_array($value)) {
+            return array_map([$this, 'deep_unslash'], $value);
+        }
+        if (is_string($value)) {
+            $previous = null;
+            $iterations = 0;
+            while ($previous !== $value && $iterations < 50) {
+                $previous = $value;
+                $value = stripslashes($value);
+                $iterations++;
+            }
+        }
+        return $value;
     }
 
     /**
