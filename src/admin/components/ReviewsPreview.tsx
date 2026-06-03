@@ -1,6 +1,7 @@
 import type { UseFormWatch } from 'react-hook-form'
-import { TEMPLATES, getWrapClass } from '@/frontend/reviews/templates'
-import type { Review, ReviewsSettings, ReviewTemplate } from '@/lib/types'
+import { TEMPLATES } from '@/frontend/reviews/templates'
+import { ReviewsLayout } from '@/frontend/reviews/layout'
+import type { Review, ReviewsSettings, ReviewTemplate, GridGap } from '@/lib/types'
 
 const MOCK_REVIEWS: Review[] = [
   {
@@ -62,6 +63,13 @@ export function ReviewsPreview({ watch }: Props) {
     show_avatar: watch('show_avatar'),
     min_rating: minRating,
     reviews_count: count,
+    grid_columns: Number(watch('grid_columns') ?? 3),
+    grid_gap: (watch('grid_gap') as GridGap) ?? 'md',
+    carousel_autoplay: !!watch('carousel_autoplay'),
+    carousel_autoplay_speed: Number(watch('carousel_autoplay_speed') ?? 5),
+    carousel_loop: watch('carousel_loop') !== false,
+    carousel_show_arrows: watch('carousel_show_arrows') !== false,
+    carousel_show_dots: watch('carousel_show_dots') !== false,
   }
 
   const reviews = MOCK_REVIEWS
@@ -77,18 +85,12 @@ export function ReviewsPreview({ watch }: Props) {
   }
 
   const Template = TEMPLATES[template] ?? TEMPLATES.classic
-  const isCarousel = displayStyle === 'carousel'
 
   return (
-    <div className={getWrapClass(displayStyle)}>
+    <ReviewsLayout settings={settings}>
       {reviews.map((review, i) => (
-        <div
-          key={i}
-          className={isCarousel ? 'flex-none w-72 [scroll-snap-align:start]' : undefined}
-        >
-          <Template review={review} settings={settings} />
-        </div>
+        <Template key={i} review={review} settings={settings} />
       ))}
-    </div>
+    </ReviewsLayout>
   )
 }

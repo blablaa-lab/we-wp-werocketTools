@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IconLoader2 } from '@tabler/icons-react'
-import { TEMPLATES, getWrapClass } from './templates'
+import { TEMPLATES } from './templates'
+import { ReviewsLayout } from './layout'
 import type { Review, ReviewsSettings, ReviewTemplate } from '@/lib/types'
 
 function getRestUrl(): string {
@@ -61,18 +62,12 @@ export function ReviewsWidget({ count, displayStyle, templateOverride }: Props) 
     ?? (settings.template as ReviewTemplate)
     ?? 'classic'
   const Template = TEMPLATES[templateKey] ?? TEMPLATES.classic
-  const isCarousel = displayStyle === 'carousel'
 
   return (
-    <div className={getWrapClass(displayStyle)}>
+    <ReviewsLayout settings={{ ...settings, display_style: displayStyle }}>
       {reviews.map((review, i) => (
-        <div
-          key={i}
-          className={isCarousel ? 'flex-none w-72 [scroll-snap-align:start]' : undefined}
-        >
-          <Template review={review} settings={settings} />
-        </div>
+        <Template key={i} review={review} settings={settings} />
       ))}
-    </div>
+    </ReviewsLayout>
   )
 }

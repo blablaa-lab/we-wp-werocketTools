@@ -41,6 +41,13 @@ class GoogleReviewsModule extends AbstractModule {
             'show_avatar' => true,
             'cache_duration' => 3600,
             'custom_css' => '',
+            'grid_columns' => 3,
+            'grid_gap' => 'md',
+            'carousel_autoplay' => false,
+            'carousel_autoplay_speed' => 5,
+            'carousel_loop' => true,
+            'carousel_show_arrows' => true,
+            'carousel_show_dots' => true,
         ];
     }
 
@@ -49,6 +56,17 @@ class GoogleReviewsModule extends AbstractModule {
         if (!in_array($template, self::TEMPLATES, true)) {
             $template = 'classic';
         }
+
+        $grid_gap = $data['grid_gap'] ?? 'md';
+        if (!in_array($grid_gap, ['sm', 'md', 'lg'], true)) {
+            $grid_gap = 'md';
+        }
+
+        $grid_columns = (int) ($data['grid_columns'] ?? 3);
+        $grid_columns = max(1, min(4, $grid_columns));
+
+        $autoplay_speed = (int) ($data['carousel_autoplay_speed'] ?? 5);
+        $autoplay_speed = max(2, min(30, $autoplay_speed));
 
         return [
             'google_place_id' => sanitize_text_field($data['google_place_id'] ?? ''),
@@ -62,6 +80,13 @@ class GoogleReviewsModule extends AbstractModule {
             'show_avatar' => !empty($data['show_avatar']),
             'cache_duration' => absint($data['cache_duration'] ?? 3600),
             'custom_css' => sanitize_textarea_field($data['custom_css'] ?? ''),
+            'grid_columns' => $grid_columns,
+            'grid_gap' => $grid_gap,
+            'carousel_autoplay' => !empty($data['carousel_autoplay']),
+            'carousel_autoplay_speed' => $autoplay_speed,
+            'carousel_loop' => !empty($data['carousel_loop']),
+            'carousel_show_arrows' => !empty($data['carousel_show_arrows']),
+            'carousel_show_dots' => !empty($data['carousel_show_dots']),
         ];
     }
 

@@ -1,13 +1,17 @@
 import { IconBolt } from '@tabler/icons-react'
 import { Badge } from '@/components/ui/badge'
 
-export function Header() {
+interface Props {
+  children?: React.ReactNode
+}
+
+export function Header({ children }: Props) {
   const root = document.getElementById('werocket-admin-root')!
   const { pluginUrl, version } = root.dataset as { pluginUrl: string; version: string }
 
   return (
     <div
-      className="relative overflow-hidden bg-cover bg-center px-10 py-14 rounded-4xl mb-6 mt-4 mr-4 ring-1 ring-foreground/5"
+      className="relative overflow-hidden bg-cover bg-center px-10 pt-12 pb-6 rounded-4xl mb-6 mt-4 mr-4 ring-1 ring-foreground/5"
       style={{ backgroundImage: `url(${pluginUrl}assets/images/banner.jpg)` }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" aria-hidden />
@@ -18,6 +22,11 @@ export function Header() {
           <span className="font-medium">v {version}</span>
         </Badge>
       </div>
+      {children && (
+        <div className="relative mt-8">
+          {children}
+        </div>
+      )}
     </div>
   )
 }

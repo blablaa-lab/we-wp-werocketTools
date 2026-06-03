@@ -39,7 +39,11 @@ export function App() {
 
   return (
     <div id="werocket-app" className="werocket-wrap">
-      <Header />
+      <Header>
+        {!loading && (
+          <TabsNav modules={modules} currentTab={tab} onNavigate={navigate} />
+        )}
+      </Header>
 
       {loading ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2 mr-4">
@@ -48,12 +52,9 @@ export function App() {
         </div>
       ) : (
         <div className="mr-4">
-          <TabsNav modules={modules} currentTab={tab} onNavigate={navigate} />
-          <div>
-            {tab === 'dashboard' && <Dashboard {...pageProps} onNavigate={navigate} />}
-            {tab === 'cookies' && <CookiesSettings />}
-            {tab === 'google_reviews' && <ReviewsSettings />}
-          </div>
+          {tab === 'dashboard' && <Dashboard {...pageProps} onNavigate={navigate} />}
+          {tab === 'cookies' && <CookiesSettings />}
+          {tab === 'google_reviews' && <ReviewsSettings />}
         </div>
       )}
 

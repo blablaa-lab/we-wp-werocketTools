@@ -31,6 +31,7 @@ export interface Review {
 }
 
 export type ReviewTemplate = 'minimal' | 'classic' | 'card' | 'quote' | 'google'
+export type GridGap = 'sm' | 'md' | 'lg'
 
 export interface ReviewsSettings {
   google_place_id: string
@@ -44,6 +45,13 @@ export interface ReviewsSettings {
   show_avatar: boolean
   cache_duration: number
   custom_css: string
+  grid_columns: number
+  grid_gap: GridGap
+  carousel_autoplay: boolean
+  carousel_autoplay_speed: number
+  carousel_loop: boolean
+  carousel_show_arrows: boolean
+  carousel_show_dots: boolean
 }
 
 export type CookiePosition = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'center'

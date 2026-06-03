@@ -584,17 +584,3 @@ export const TEMPLATE_META: Record<ReviewTemplate, TemplateMeta> = {
   },
 }
 
-/* ────────────────────────────────────────────────────────────── */
-/*  Layout helper                                                  */
-/* ────────────────────────────────────────────────────────────── */
-
-export function getWrapClass(displayStyle: string): string {
-  switch (displayStyle) {
-    case 'list':
-      return 'flex flex-col gap-4'
-    case 'carousel':
-      return 'flex gap-4 overflow-x-auto pb-2 [scroll-snap-type:x_mandatory]'
-    default:
-      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
-  }
-}

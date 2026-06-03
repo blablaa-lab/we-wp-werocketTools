@@ -24,7 +24,7 @@ export function TabsNav({ modules, currentTab, onNavigate }: Props) {
 
   return (
     <nav
-      className="bg-muted rounded-full p-1 mb-6 inline-flex items-center gap-1"
+      className="bg-muted rounded-full p-1 inline-flex items-center gap-1 ring-1 ring-foreground/10"
       aria-label="Navigation principale"
     >
       <button type="button" className={tabClass(currentTab === 'dashboard')} onClick={() => onNavigate('dashboard')}>
