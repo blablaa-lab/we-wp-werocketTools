@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import {
   IconKey, IconEye, IconLoader2, IconExternalLink, IconRefresh,
-  IconCircleCheck, IconAlertTriangle, IconClock,
+  IconCircleCheck, IconAlertTriangle, IconClock, IconClipboard, IconCheck,
 } from '@tabler/icons-react'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -109,7 +109,7 @@ export function ReviewsSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><IconKey size={16} /> API Google</CardTitle>
+            <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconKey size={16} /></div> API Google</CardTitle>
             <CardDescription>Clés nécessaires pour récupérer les avis</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -141,7 +141,7 @@ export function ReviewsSettings() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><IconEye size={16} /> Affichage</CardTitle>
+            <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconEye size={16} /></div> Affichage</CardTitle>
             <CardDescription>Paramètres de rendu des avis</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -169,7 +169,7 @@ export function ReviewsSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Template</CardTitle>
+          <CardTitle className="font-bold">Template</CardTitle>
           <CardDescription>Design de chaque carte d'avis</CardDescription>
         </CardHeader>
         <CardContent>
@@ -203,8 +203,11 @@ export function ReviewsSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><IconEye size={16} /> Aperçu</CardTitle>
+          <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconEye size={16} /></div> Aperçu</CardTitle>
           <CardDescription>Rendu en temps réel avec des avis fictifs</CardDescription>
+          <CardAction>
+            <ShortcodeClipboard code="[werocket_reviews]" />
+          </CardAction>
         </CardHeader>
         <CardContent>
           <div className="rounded-2xl bg-muted/40 p-4 sm:p-6">
@@ -215,7 +218,7 @@ export function ReviewsSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle>CSS personnalisé</CardTitle>
+          <CardTitle className="font-bold">CSS personnalisé</CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea
@@ -308,6 +311,43 @@ function SyncBlock({
         </Button>
       </div>
     </div>
+  )
+}
+
+function ShortcodeClipboard({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(code)
+    } catch {
+      // Fallback pour les contextes non-HTTPS (ex: Local by Flywheel)
+      const el = document.createElement('textarea')
+      el.value = code
+      el.style.position = 'fixed'
+      el.style.opacity = '0'
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
+    setCopied(true)
+    toast.success('Shortcode copié dans le presse-papier')
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title="Copier le shortcode"
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted hover:bg-muted/70 text-xs font-mono text-foreground/80 transition-all ring-1 ring-border"
+    >
+      {code}
+      {copied
+        ? <IconCheck size={13} className="text-primary shrink-0" />
+        : <IconClipboard size={13} className="text-muted-foreground shrink-0" />}
+    </button>
   )
 }
 

@@ -89,7 +89,7 @@ export function RetractationSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><IconSettings size={16} /> Page publique</CardTitle>
+            <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconSettings size={16} /></div> Page publique</CardTitle>
             <CardDescription>Titre + slug de l'endpoint My Account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -113,7 +113,7 @@ export function RetractationSettings() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><IconBell size={16} /> Notifications marchand</CardTitle>
+            <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconBell size={16} /></div> Notifications marchand</CardTitle>
             <CardDescription>Email reçu à chaque nouvelle demande</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -135,7 +135,7 @@ export function RetractationSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><IconPalette size={16} /> Identité visuelle</CardTitle>
+          <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconPalette size={16} /></div> Identité visuelle</CardTitle>
           <CardDescription>Couleurs d'accent et logo email pour aligner le module à votre marque</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -205,7 +205,7 @@ export function RetractationSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><IconClipboardList size={16} /> Accès rapides</CardTitle>
+          <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconClipboardList size={16} /></div> Accès rapides</CardTitle>
           <CardDescription>Liens vers le formulaire public et l'écran de gestion</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -241,7 +241,7 @@ export function RetractationSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><IconCode size={16} /> Shortcode invité</CardTitle>
+          <CardTitle className="flex items-center gap-3 font-bold"><div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><IconCode size={16} /></div> Shortcode invité</CardTitle>
           <CardDescription>Pour offrir le formulaire aux visiteurs non connectés</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
