@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils'
 import type { Module } from '@/lib/types'
 
 const MODULE_ICONS: Record<string, React.ReactNode> = {
-  cookies: <IconCookie size={16} />,
-  google_reviews: <IconStarFilled size={16} />,
+  cookies: <IconCookie size={18} />,
+  google_reviews: <IconStarFilled size={18} />,
 }
 
 interface Props {
@@ -16,19 +16,19 @@ interface Props {
 export function TabsNav({ modules, currentTab, onNavigate }: Props) {
   const tabClass = (active: boolean) =>
     cn(
-      'relative inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all cursor-pointer select-none',
+      'relative inline-flex items-center gap-2.5 rounded-full px-6 py-2.5 text-[15px] font-medium whitespace-nowrap transition-all cursor-pointer select-none',
       active
-        ? 'bg-background text-foreground shadow-sm ring-1 ring-foreground/5'
+        ? 'bg-primary text-primary-foreground shadow-md ring-1 ring-primary/20'
         : 'text-muted-foreground hover:text-foreground'
     )
 
   return (
     <nav
-      className="bg-muted rounded-full p-1 inline-flex items-center gap-1 ring-1 ring-foreground/10"
+      className="bg-background/95 backdrop-blur rounded-full p-1.5 inline-flex items-center gap-1 ring-1 ring-foreground/10 shadow-sm"
       aria-label="Navigation principale"
     >
       <button type="button" className={tabClass(currentTab === 'dashboard')} onClick={() => onNavigate('dashboard')}>
-        <IconLayoutDashboard size={16} />
+        <IconLayoutDashboard size={18} />
         Tableau de bord
       </button>
       {modules.map(m => (

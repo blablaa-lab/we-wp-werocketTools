@@ -80,17 +80,10 @@ export function ReviewsSettings() {
             <Field label="Place ID Google">
               <div className="flex items-center gap-2">
                 <Input {...register('google_place_id')} placeholder="ChIJ..." className="flex-1" />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  asChild
-                  className="shrink-0 h-9 gap-1.5"
-                >
+                <Button type="button" asChild className="shrink-0 gap-1.5 whitespace-nowrap">
                   <a href={PLACE_ID_FINDER_URL} target="_blank" rel="noreferrer noopener">
                     <IconExternalLink size={14} />
-                    <span className="hidden sm:inline">Trouver mon Place ID</span>
-                    <span className="sm:hidden">Trouver</span>
+                    Trouver mon Place ID
                   </a>
                 </Button>
               </div>
