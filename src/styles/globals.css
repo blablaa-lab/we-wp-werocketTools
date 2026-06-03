@@ -1,58 +1,84 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
 @config "../../tailwind.config.js";
 
+/* ─── Variables du thème (preset b1GwVdBaa — teal/neutral) ─── */
 @layer base {
   :root {
     --background: oklch(1 0 0);
-    --foreground: oklch(0.141 0.005 285.823);
+    --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.141 0.005 285.823);
+    --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.141 0.005 285.823);
-    --primary: oklch(0.527 0.154 150.069);
-    --primary-foreground: oklch(0.985 0.002 150.069);
-    --secondary: oklch(0.961 0.001 106.424);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.511 0.096 186.391);
+    --primary-foreground: oklch(0.984 0.014 180.72);
+    --secondary: oklch(0.967 0.001 286.375);
     --secondary-foreground: oklch(0.21 0.006 285.885);
-    --muted: oklch(0.961 0.001 106.424);
-    --muted-foreground: oklch(0.552 0.016 285.938);
-    --accent: oklch(0.961 0.001 106.424);
-    --accent-foreground: oklch(0.21 0.006 285.885);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.985 0.001 106.424);
-    --border: oklch(0.92 0.004 285.75);
-    --input: oklch(0.92 0.004 285.75);
-    --ring: oklch(0.527 0.154 150.069);
-    --radius: 0.5rem;
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.879 0.169 91.605);
+    --chart-2: oklch(0.769 0.188 70.08);
+    --chart-3: oklch(0.666 0.179 58.318);
+    --chart-4: oklch(0.555 0.163 48.998);
+    --chart-5: oklch(0.473 0.137 46.201);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.6 0.118 184.704);
+    --sidebar-primary-foreground: oklch(0.984 0.014 180.72);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
   }
 
   .dark {
-    --background: oklch(0.141 0.005 285.823);
-    --foreground: oklch(0.985 0.001 106.424);
-    --card: oklch(0.21 0.006 285.885);
-    --card-foreground: oklch(0.985 0.001 106.424);
-    --popover: oklch(0.21 0.006 285.885);
-    --popover-foreground: oklch(0.985 0.001 106.424);
-    --primary: oklch(0.527 0.154 150.069);
-    --primary-foreground: oklch(0.985 0.002 150.069);
-    --secondary: oklch(0.269 0.007 285.885);
-    --secondary-foreground: oklch(0.985 0.001 106.424);
-    --muted: oklch(0.269 0.007 285.885);
-    --muted-foreground: oklch(0.705 0.015 286.067);
-    --accent: oklch(0.269 0.007 285.885);
-    --accent-foreground: oklch(0.985 0.001 106.424);
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.437 0.078 188.216);
+    --primary-foreground: oklch(0.984 0.014 180.72);
+    --secondary: oklch(0.274 0.006 286.033);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --destructive-foreground: oklch(0.985 0.001 106.424);
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.527 0.154 150.069);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.879 0.169 91.605);
+    --chart-2: oklch(0.769 0.188 70.08);
+    --chart-3: oklch(0.666 0.179 58.318);
+    --chart-4: oklch(0.555 0.163 48.998);
+    --chart-5: oklch(0.473 0.137 46.201);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.704 0.14 182.503);
+    --sidebar-primary-foreground: oklch(0.277 0.046 192.524);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
   }
 }
 
+/* ─── Mapping Tailwind v4 tokens ─── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -69,7 +95,6 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -78,39 +103,50 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --font-sans: 'Inter Variable', sans-serif;
+  --font-heading: var(--font-sans);
 }
 
-/* Animations shadcn Accordion */
-@keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
-}
-@keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
-}
-@theme inline {
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-}
-
-/*
- * Isolation box-sizing pour nos conteneurs React
- * Sans preflight, on applique box-sizing uniquement à nos éléments
- */
+/* ─── Isolation : nos conteneurs React seulement ─── */
+#werocket-app,
 #werocket-app *,
 #werocket-app *::before,
 #werocket-app *::after,
+#werocket-cookies-banner,
 #werocket-cookies-banner *,
 #werocket-cookies-banner *::before,
 #werocket-cookies-banner *::after,
+.werocket-reviews-mount,
 .werocket-reviews-mount *,
+.werocket-business-info-mount,
 .werocket-business-info-mount *,
+.werocket-business-hours-mount,
 .werocket-business-hours-mount *,
+.werocket-business-map-mount,
 .werocket-business-map-mount * {
   box-sizing: border-box;
+}
+
+#werocket-app,
+#werocket-cookies-banner,
+.werocket-reviews-mount,
+.werocket-business-info-mount,
+.werocket-business-hours-mount,
+.werocket-business-map-mount {
+  font-family: 'Inter Variable', sans-serif;
 }
