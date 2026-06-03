@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { IconStarFilled, IconStar } from '@tabler/icons-react'
-import type { Review, ReviewsSettings } from '@/lib/types'
+import { IconLoader2 } from '@tabler/icons-react'
+import { TEMPLATES, getWrapClass } from './templates'
+import type { Review, ReviewsSettings, ReviewTemplate } from '@/lib/types'
 
 function getRestUrl(): string {
   return (window as unknown as Record<string, Record<string, string>>)['werocketFrontend']?.restUrl
@@ -10,9 +11,10 @@ function getRestUrl(): string {
 interface Props {
   count: number
   displayStyle: string
+  templateOverride?: ReviewTemplate
 }
 
-export function ReviewsWidget({ count, displayStyle }: Props) {
+export function ReviewsWidget({ count, displayStyle, templateOverride }: Props) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [settings, setSettings] = useState<Partial<ReviewsSettings>>({})
   const [loading, setLoading] = useState(true)
@@ -30,51 +32,46 @@ export function ReviewsWidget({ count, displayStyle }: Props) {
       .finally(() => setLoading(false))
   }, [count])
 
-  if (loading) return <p className="text-muted-foreground text-sm">Chargement des avis...</p>
-  if (!reviews.length) return <p className="text-muted-foreground text-sm">Aucun avis disponible.</p>
+  useEffect(() => {
+    if (settings.custom_css) {
+      const id = 'werocket-reviews-custom-css'
+      if (!document.getElementById(id)) {
+        const style = document.createElement('style')
+        style.id = id
+        style.textContent = settings.custom_css
+        document.head.appendChild(style)
+      }
+    }
+  }, [settings.custom_css])
 
-  const gridClass = displayStyle === 'list'
-    ? 'flex flex-col gap-4'
-    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
+        <IconLoader2 size={18} className="animate-spin" />
+        <span className="text-sm">Chargement des avis...</span>
+      </div>
+    )
+  }
+
+  if (!reviews.length) {
+    return <p className="text-muted-foreground text-sm text-center py-8">Aucun avis disponible.</p>
+  }
+
+  const templateKey: ReviewTemplate = templateOverride
+    ?? (settings.template as ReviewTemplate)
+    ?? 'classic'
+  const Template = TEMPLATES[templateKey] ?? TEMPLATES.classic
+  const isCarousel = displayStyle === 'carousel'
 
   return (
-    <div className={gridClass}>
+    <div className={getWrapClass(displayStyle)}>
       {reviews.map((review, i) => (
-        <ReviewCard key={i} review={review} settings={settings} />
-      ))}
-    </div>
-  )
-}
-
-function ReviewCard({ review, settings }: { review: Review; settings: Partial<ReviewsSettings> }) {
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
-      {settings.show_avatar !== false && review.profile_photo_url && (
-        <div className="flex items-center gap-3">
-          <img src={review.profile_photo_url} alt={review.author_name} className="w-9 h-9 rounded-full object-cover" />
-          <div>
-            <p className="text-sm font-semibold text-gray-900">{review.author_name}</p>
-            {settings.show_date !== false && (
-              <p className="text-xs text-gray-500">{review.relative_time_description}</p>
-            )}
-          </div>
+        <div
+          key={i}
+          className={isCarousel ? 'flex-none w-72 [scroll-snap-align:start]' : undefined}
+        >
+          <Template review={review} settings={settings} />
         </div>
-      )}
-      {settings.show_rating !== false && (
-        <Stars rating={review.rating} />
-      )}
-      <p className="text-sm text-gray-700 leading-relaxed">{review.text}</p>
-    </div>
-  )
-}
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }, (_, i) => i + 1).map(n => (
-        n <= rating
-          ? <IconStarFilled key={n} size={16} className="text-amber-400" />
-          : <IconStar key={n} size={16} className="text-gray-300" />
       ))}
     </div>
   )

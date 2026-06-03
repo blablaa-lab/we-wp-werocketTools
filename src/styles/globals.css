@@ -132,22 +132,13 @@
 #werocket-cookies-banner *::before,
 #werocket-cookies-banner *::after,
 .werocket-reviews-mount,
-.werocket-reviews-mount *,
-.werocket-business-info-mount,
-.werocket-business-info-mount *,
-.werocket-business-hours-mount,
-.werocket-business-hours-mount *,
-.werocket-business-map-mount,
-.werocket-business-map-mount * {
+.werocket-reviews-mount * {
   box-sizing: border-box;
 }
 
 #werocket-app,
 #werocket-cookies-banner,
-.werocket-reviews-mount,
-.werocket-business-info-mount,
-.werocket-business-hours-mount,
-.werocket-business-map-mount {
+.werocket-reviews-mount {
   font-family: 'Inter Variable', sans-serif;
 }
 
@@ -162,9 +153,6 @@
   #werocket-cookies-banner *::before,
   #werocket-cookies-banner *::after,
   .werocket-reviews-mount *,
-  .werocket-business-info-mount *,
-  .werocket-business-hours-mount *,
-  .werocket-business-map-mount *,
   [data-slot],
   [data-slot] *,
   [data-slot] *::before,

@@ -24,15 +24,15 @@ class GoogleReviewsModule extends AbstractModule {
         }
     }
 
-    public function render_settings(): void {
-        $settings = $this->get_settings();
-        include WEROCKET_TOOLS_PLUGIN_DIR . 'templates/modules/google-reviews-settings.php';
-    }
+    public function render_settings(): void {}
+
+    private const TEMPLATES = ['minimal', 'classic', 'card', 'quote', 'google'];
 
     protected function get_default_settings(): array {
         return [
             'google_place_id' => '',
             'google_api_key' => '',
+            'template' => 'classic',
             'display_style' => 'grid',
             'reviews_count' => 5,
             'min_rating' => 4,
@@ -45,9 +45,15 @@ class GoogleReviewsModule extends AbstractModule {
     }
 
     protected function sanitize_settings(array $data): array {
+        $template = $data['template'] ?? 'classic';
+        if (!in_array($template, self::TEMPLATES, true)) {
+            $template = 'classic';
+        }
+
         return [
             'google_place_id' => sanitize_text_field($data['google_place_id'] ?? ''),
             'google_api_key' => sanitize_text_field($data['google_api_key'] ?? ''),
+            'template' => $template,
             'display_style' => sanitize_key($data['display_style'] ?? 'grid'),
             'reviews_count' => absint($data['reviews_count'] ?? 5),
             'min_rating' => absint($data['min_rating'] ?? 4),
@@ -71,15 +77,20 @@ class GoogleReviewsModule extends AbstractModule {
     }
 
     public function render_shortcode(array $atts = []): string {
+        $settings = $this->get_settings();
         $atts = shortcode_atts([
-            'count' => $this->get_settings()['reviews_count'] ?? 5,
-            'style' => $this->get_settings()['display_style'] ?? 'grid',
+            'count' => $settings['reviews_count'] ?? 5,
+            'style' => $settings['display_style'] ?? 'grid',
+            'template' => $settings['template'] ?? 'classic',
         ], $atts);
 
+        $template = in_array($atts['template'], self::TEMPLATES, true) ? $atts['template'] : 'classic';
+
         return sprintf(
-            '<div class="werocket-reviews-mount" data-count="%d" data-style="%s"></div>',
+            '<div class="werocket-reviews-mount" data-count="%d" data-style="%s" data-template="%s"></div>',
             absint($atts['count']),
-            esc_attr($atts['style'])
+            esc_attr($atts['style']),
+            esc_attr($template)
         );
     }
 

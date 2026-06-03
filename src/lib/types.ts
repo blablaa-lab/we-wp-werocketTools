@@ -30,9 +30,12 @@ export interface Review {
   time: number
 }
 
+export type ReviewTemplate = 'minimal' | 'classic' | 'card' | 'quote' | 'google'
+
 export interface ReviewsSettings {
   google_place_id: string
   google_api_key: string
+  template: ReviewTemplate
   display_style: string
   reviews_count: number
   min_rating: number

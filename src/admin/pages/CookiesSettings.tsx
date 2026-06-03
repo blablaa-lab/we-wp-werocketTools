@@ -249,10 +249,10 @@ export function CookiesSettings() {
                   ] as [keyof FormValues, string][]).map(([name, label]) => (
                     <Field key={name} label={label}>
                       <div className="flex items-center gap-2">
-                        <input
+                        <Input
                           type="color"
                           {...register(name)}
-                          className="h-9 w-12 rounded border border-input cursor-pointer p-0.5 bg-background"
+                          className="h-9 w-14 shrink-0 cursor-pointer p-1"
                         />
                         <Input {...register(name)} className="font-mono text-sm" placeholder="#000000" />
                       </div>
