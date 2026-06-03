@@ -1,10 +1,11 @@
-import { IconLayoutDashboard, IconCookie, IconStarFilled } from '@tabler/icons-react'
+import { IconLayoutDashboard, IconCookie, IconStarFilled, IconArrowBackUp } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import type { Module } from '@/lib/types'
 
 const MODULE_ICONS: Record<string, React.ReactNode> = {
   cookies: <IconCookie size={18} />,
   google_reviews: <IconStarFilled size={18} />,
+  retractation: <IconArrowBackUp size={18} />,
 }
 
 interface Props {

@@ -66,6 +66,14 @@ export interface ReviewsSettings {
   carousel_show_dots: boolean
 }
 
+export interface RetractationSettings {
+  page_title: string
+  endpoint_slug: string
+  merchant_notify: boolean
+  merchant_email: string
+  show_legal_notice: boolean
+}
+
 export type CookiePosition = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'center'
 export type CookieTheme = 'light' | 'dark' | 'custom'
 export type StorageMethod = 'cookie' | 'localStorage'
