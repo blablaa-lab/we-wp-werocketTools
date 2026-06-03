@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard Template
+ * Dashboard Template Werocket Tools
  *
  * @var array $modules
  * @var array $active_modules
