@@ -6,7 +6,7 @@ function getBootstrap() {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const { restUrl, nonce } = getBootstrap()
-  const res = await fetch(`${restUrl}${path}`, {
+  const res = await fetch(`${restUrl.replace(/\/$/, '')}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
