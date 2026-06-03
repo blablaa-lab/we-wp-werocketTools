@@ -1,103 +1,119 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { IconCookie, IconSettings, IconX } from '@tabler/icons-react'
-
-declare global {
-  interface Window {
-    klaro?: {
-      getManager(): { saveAndApplyConsents(accept: boolean): void; show(): void }
-      show(): void
-    }
-  }
-}
-
-interface KlaroConfig {
-  notice_text?: string
-  accept_all_text?: string
-  decline_text?: string
-  settings_text?: string
-  position?: string
-  theme?: string
-  primary_color?: string
-}
+import { type CookiesSettings } from '@/lib/types'
+import { getKlaroManager, hasConsented } from './klaro-client'
 
 interface Props {
-  config: KlaroConfig
+  config: CookiesSettings
+  onOpenSettings: () => void
+  onDismiss: () => void
 }
 
-export function CookiesBanner({ config }: Props) {
+export function CookiesBanner({ config, onOpenSettings, onDismiss }: Props) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    // Afficher la bannière seulement si pas de consentement déjà enregistré
-    const hasConsented = document.cookie.includes('klaro=')
-    if (!hasConsented) {
+    if (hasConsented(config.cookie_name)) return
+    getKlaroManager().then(manager => {
+      if (!manager || manager.confirmed) return
       setTimeout(() => setVisible(true), 400)
-    }
-  }, [])
+    })
+  }, [config.cookie_name])
 
-  function accept() {
-    window.klaro?.getManager().saveAndApplyConsents(true)
+  async function acceptAll() {
+    const manager = await getKlaroManager()
+    if (manager) manager.saveAndApplyConsents(true)
     setVisible(false)
+    onDismiss()
   }
 
-  function decline() {
-    window.klaro?.getManager().saveAndApplyConsents(false)
+  async function declineAll() {
+    const manager = await getKlaroManager()
+    if (manager) manager.saveAndApplyConsents(false)
     setVisible(false)
+    onDismiss()
   }
 
   function openSettings() {
-    window.klaro?.show()
+    onOpenSettings()
   }
 
   if (!visible) return null
 
-  const posClass = config.position === 'top' ? 'top-0 left-0 right-0' : 'bottom-0 left-0 right-0'
+  const positionClasses: Record<string, string> = {
+    'bottom-left':  'bottom-4 left-4 max-w-lg',
+    'bottom-right': 'bottom-4 right-4 max-w-lg',
+    'top-left':     'top-4 left-4 max-w-lg',
+    'top-right':    'top-4 right-4 max-w-lg',
+    'center':       'bottom-0 left-0 right-0',
+  }
+  const posClass = positionClasses[config.position] ?? positionClasses['bottom-left']
+  const isBar = config.position === 'center'
+
+  const isDark = config.theme === 'dark'
+  const bg = isDark ? (config.color_background !== '#ffffff' ? config.color_background : '#1a1a2e') : config.color_background
+  const textColor = isDark ? (config.color_text !== '#1f2937' ? config.color_text : '#e2e8f0') : config.color_text
+  const borderColor = config.color_primary
+  const isTop = config.position.startsWith('top')
+
+  const buttons = (
+    <>
+      {!config.hide_learn_more && (
+        <Button variant="outline" size="sm" onClick={openSettings} className="gap-1.5 text-xs h-8"
+          style={{ borderColor }}>
+          <IconSettings size={13} />
+          {config.texts.settings ?? 'Personnaliser'}
+        </Button>
+      )}
+      {!config.hide_decline_all && (
+        <Button variant="ghost" size="sm" onClick={declineAll} className="gap-1.5 text-xs h-8">
+          <IconX size={13} />
+          {config.texts.decline_all ?? 'Tout refuser'}
+        </Button>
+      )}
+      <Button size="sm" onClick={acceptAll} className="text-xs h-8 text-white"
+        style={{ backgroundColor: config.color_primary }}>
+        {config.texts.accept_all ?? 'Tout accepter'}
+      </Button>
+    </>
+  )
 
   return (
     <div
-      className={`fixed ${posClass} z-[9999] px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg`}
+      className={`fixed ${posClass} z-[9999] shadow-lg rounded-lg`}
       style={{
-        backgroundColor: config.theme === 'dark' ? '#1a1a2e' : '#ffffff',
-        color: config.theme === 'dark' ? '#e2e8f0' : '#1e293b',
-        borderTop: config.position !== 'top' ? `2px solid ${config.primary_color ?? '#10b981'}` : undefined,
-        borderBottom: config.position === 'top' ? `2px solid ${config.primary_color ?? '#10b981'}` : undefined,
+        backgroundColor: bg,
+        color: textColor,
+        borderTop: !isTop && !isBar ? `2px solid ${borderColor}` : undefined,
+        borderBottom: isTop ? `2px solid ${borderColor}` : undefined,
+        padding: isBar ? '12px 16px' : '16px',
       }}
     >
-      <div className="flex items-start gap-3 flex-1 min-w-0">
-        <IconCookie size={20} className="shrink-0 mt-0.5" style={{ color: config.primary_color ?? '#10b981' }} />
-        <p className="text-sm leading-relaxed">
-          {config.notice_text ?? 'Nous utilisons des cookies pour améliorer votre expérience.'}
-        </p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0 flex-wrap">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={openSettings}
-          className="gap-1.5 text-xs h-8"
-          style={{ borderColor: config.primary_color ?? '#10b981' }}
-        >
-          <IconSettings size={13} />
-          {config.settings_text ?? 'Paramètres'}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={decline}
-          className="gap-1.5 text-xs h-8"
-        >
-          <IconX size={13} />
-          {config.decline_text ?? 'Refuser'}
-        </Button>
-        <Button
-          size="sm"
-          onClick={accept}
-          className="text-xs h-8 text-white"
-          style={{ backgroundColor: config.primary_color ?? '#10b981' }}
-        >
-          {config.accept_all_text ?? 'Tout accepter'}
-        </Button>
+      <div className={`flex ${isBar ? 'flex-col sm:flex-row items-start sm:items-center justify-between' : 'flex-col'} gap-3`}>
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <IconCookie size={18} className="shrink-0 mt-0.5" style={{ color: config.color_primary }} />
+          <div className="min-w-0">
+            {config.texts.notice_title && (
+              <p className="font-semibold text-sm mb-1">{config.texts.notice_title}</p>
+            )}
+            {config.html_texts ? (
+              <p className="text-xs leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: config.texts.notice_description ?? '' }} />
+            ) : (
+              <p className="text-xs leading-relaxed">{config.texts.notice_description}</p>
+            )}
+            {config.texts.privacy_policy_url && (
+              <a href={config.texts.privacy_policy_url} target="_blank" rel="noopener noreferrer"
+                className="text-xs underline mt-1 inline-block" style={{ color: config.color_primary }}>
+                {config.texts.privacy_policy ?? 'Politique de confidentialité'}
+              </a>
+            )}
+          </div>
+        </div>
+        <div className={`flex items-center gap-2 shrink-0 flex-wrap ${config.flip_buttons ? 'flex-row-reverse' : ''}`}>
+          {buttons}
+        </div>
       </div>
     </div>
   )

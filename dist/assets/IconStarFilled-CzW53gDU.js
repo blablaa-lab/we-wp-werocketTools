@@ -1,4 +1,4 @@
-import{c as l}from"./createReactComponent-Pa3loU03.js";/**
+import{c as l}from"./createReactComponent-B1EYoFOE.js";/**
  * @license @tabler/icons-react v3.44.0 - MIT
  *
  * This source code is licensed under the MIT license.

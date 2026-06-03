@@ -1,9 +1,10 @@
 import { createRoot } from 'react-dom/client'
 import '@/styles/globals.css'
-import { CookiesBanner } from './CookiesBanner'
+import { CookiesRoot } from './CookiesRoot'
+import type { CookiesSettings } from '@/lib/types'
 
 const el = document.getElementById('werocket-cookies-banner')
 if (el) {
-  const config = el.dataset.config ? JSON.parse(el.dataset.config) : {}
-  createRoot(el).render(<CookiesBanner config={config} />)
+  const config: CookiesSettings = el.dataset.config ? JSON.parse(el.dataset.config) : null
+  if (config) createRoot(el).render(<CookiesRoot config={config} />)
 }
