@@ -5,7 +5,6 @@ import { TabsNav } from './components/TabsNav'
 import { Dashboard } from './pages/Dashboard'
 import { CookiesSettings } from './pages/CookiesSettings'
 import { ReviewsSettings } from './pages/ReviewsSettings'
-import { BusinessSettings } from './pages/BusinessSettings'
 import { api } from '@/lib/api'
 import type { Module } from '@/lib/types'
 import { IconLoader2 } from '@tabler/icons-react'
@@ -54,7 +53,6 @@ export function App() {
             {tab === 'dashboard' && <Dashboard {...pageProps} onNavigate={navigate} />}
             {tab === 'cookies' && <CookiesSettings />}
             {tab === 'google_reviews' && <ReviewsSettings />}
-            {tab === 'google_business' && <BusinessSettings />}
           </div>
         </div>
       )}

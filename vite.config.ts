@@ -20,7 +20,6 @@ export default defineConfig({
         admin: r('src/admin/main.tsx'),
         cookies: r('src/frontend/cookies/main.tsx'),
         reviews: r('src/frontend/reviews/main.tsx'),
-        business: r('src/frontend/business/main.tsx'),
       },
     },
   },

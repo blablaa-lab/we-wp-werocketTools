@@ -69,12 +69,6 @@ class RestApi {
             'permission_callback' => '__return_true',
         ]);
 
-        // GET /business (public)
-        register_rest_route($namespace, '/business', [
-            'methods'             => 'GET',
-            'callback'            => [$this, 'get_business'],
-            'permission_callback' => '__return_true',
-        ]);
     }
 
     public function require_admin(): bool|WP_Error {
@@ -168,13 +162,4 @@ class RestApi {
         ]);
     }
 
-    public function get_business(WP_REST_Request $request): WP_REST_Response {
-        $module = $this->module_manager->get_module('google_business');
-
-        if (!$module || !$this->module_manager->is_module_active('google_business')) {
-            return rest_ensure_response(['settings' => []]);
-        }
-
-        return rest_ensure_response(['settings' => $module->get_settings()]);
-    }
 }

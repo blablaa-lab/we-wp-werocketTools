@@ -15,7 +15,6 @@ class Activator {
             'active_modules' => [
                 'cookies' => true,
                 'google_reviews' => true,
-                'google_business' => true,
             ],
         ];
 

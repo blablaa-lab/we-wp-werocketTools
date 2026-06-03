@@ -13,6 +13,9 @@ abstract class AbstractModule implements ModuleInterface {
     protected string $icon;
     protected string $option_key;
 
+    /** Per-request cache to avoid repeated get_option + deep merge on the same hit. */
+    private ?array $settings_cache = null;
+
     public function get_id(): string {
         return $this->id;
     }
@@ -30,11 +33,15 @@ abstract class AbstractModule implements ModuleInterface {
     }
 
     public function get_settings(): array {
+        if ($this->settings_cache !== null) {
+            return $this->settings_cache;
+        }
         $defaults = $this->get_default_settings();
         $saved = get_option($this->option_key, []);
-
-        // Deep merge saved settings with defaults
-        return $this->array_merge_recursive_distinct($defaults, $saved);
+        if (!is_array($saved)) {
+            $saved = [];
+        }
+        return $this->settings_cache = $this->array_merge_recursive_distinct($defaults, $saved);
     }
 
     /**
@@ -78,7 +85,10 @@ abstract class AbstractModule implements ModuleInterface {
         // déjà polluées par les saves précédents (avant ce fix).
         $data = $this->deep_unslash($data);
         $sanitized = $this->sanitize_settings($data);
-        return update_option($this->option_key, $sanitized);
+        $result = update_option($this->option_key, $sanitized);
+        // Invalidate the per-request cache so the next read returns fresh data.
+        $this->settings_cache = null;
+        return $result;
     }
 
     private function deep_unslash(mixed $value): mixed {

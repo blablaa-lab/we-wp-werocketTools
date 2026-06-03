@@ -30,34 +30,6 @@ export interface Review {
   time: number
 }
 
-export interface BusinessAddress {
-  street: string
-  city: string
-  postal_code: string
-  country: string
-}
-
-export interface BusinessHours {
-  open: string
-  close: string
-  closed: boolean
-}
-
-export interface BusinessSettings {
-  business_name: string
-  business_type: string
-  description: string
-  phone: string
-  email: string
-  website: string
-  address: BusinessAddress
-  coordinates: { lat: string; lng: string }
-  opening_hours: Record<string, BusinessHours>
-  social_links: Record<string, string>
-  google_maps_api_key: string
-  enable_structured_data: boolean
-}
-
 export interface ReviewsSettings {
   google_place_id: string
   google_api_key: string

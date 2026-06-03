@@ -33,37 +33,97 @@ class CookiesModule extends AbstractModule {
     /**
      * Shortcode to display a link/button to manage cookie preferences
      * Usage: [werocket_cookie_settings] or [werocket_cookie_settings text="Gérer mes cookies" class="my-class" tag="button"]
+     *
+     * SECURITY: CSP-friendly — uses data-attribute + global event listener
+     * (see render_klaro_script) rather than inline onclick.
      */
     public function render_cookie_settings_shortcode($atts): string {
         $atts = shortcode_atts([
-            'text' => 'Gérer mes cookies',
+            'text'  => __('Gérer mes cookies', 'werocket-tools'),
             'class' => '',
-            'tag' => 'a', // 'a' or 'button'
-            'style' => '', // Additional inline styles
+            'tag'   => 'a',
+            'style' => '',
         ], $atts);
 
-        $classes = 'werocket-cookie-settings-link';
-        if (!empty($atts['class'])) {
-            $classes .= ' ' . esc_attr($atts['class']);
-        }
+        // Whitelist tag
+        $tag = in_array($atts['tag'], ['a', 'button'], true) ? $atts['tag'] : 'a';
 
-        $style = !empty($atts['style']) ? ' style="' . esc_attr($atts['style']) . '"' : '';
+        // Sanitize multiple classes (sanitize_html_class only handles one)
+        $extra_classes = $this->sanitize_class_list($atts['class']);
+        $classes = trim('werocket-cookie-settings-link ' . $extra_classes);
+        $style   = !empty($atts['style']) ? ' style="' . esc_attr($atts['style']) . '"' : '';
+        $text    = esc_html($atts['text']);
 
-        if ($atts['tag'] === 'button') {
+        if ($tag === 'button') {
             return sprintf(
-                '<button type="button" class="%s" onclick="WeRocketCookies.showSettings()"%s>%s</button>',
-                $classes,
+                '<button type="button" class="%s" data-werocket-cookie-trigger="settings"%s>%s</button>',
+                esc_attr($classes),
                 $style,
-                esc_html($atts['text'])
+                $text
             );
         }
 
         return sprintf(
-            '<a href="#" class="%s" onclick="WeRocketCookies.showSettings(); return false;"%s>%s</a>',
-            $classes,
+            '<a href="#werocket-cookies-settings" class="%s" data-werocket-cookie-trigger="settings"%s>%s</a>',
+            esc_attr($classes),
             $style,
-            esc_html($atts['text'])
+            $text
         );
+    }
+
+    /**
+     * Sanitize a space-separated list of CSS classes.
+     */
+    private function sanitize_class_list(string $value): string {
+        $parts = preg_split('/\s+/', trim($value));
+        $clean = array_filter(array_map('sanitize_html_class', $parts ?: []));
+        return implode(' ', $clean);
+    }
+
+    /**
+     * Strict domain validation. Returns '' if invalid.
+     */
+    private function sanitize_cookie_domain(string $domain): string {
+        $domain = trim(sanitize_text_field($domain));
+        if ($domain === '') return '';
+        // Allow leading dot for cookie subdomains. Reject anything that's not
+        // a valid hostname (letters, digits, hyphens, dots only).
+        if (!preg_match('/^\.?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i', $domain)) {
+            return '';
+        }
+        return strtolower($domain);
+    }
+
+    /**
+     * Whitelist GCM region list (ISO 3166 country/subdivision codes).
+     */
+    private function sanitize_gcm_region(string $value): string {
+        $value = trim(sanitize_text_field($value));
+        if ($value === '') return '';
+        $parts = array_map('trim', explode(',', $value));
+        $clean = [];
+        foreach ($parts as $code) {
+            if (preg_match('/^[A-Z]{2}(-[A-Z0-9]{1,3})?$/i', $code)) {
+                $clean[] = strtoupper($code);
+            }
+        }
+        return implode(',', $clean);
+    }
+
+    /**
+     * Strip dangerous CSS constructs from user-supplied custom CSS.
+     * Defense-in-depth: even if rendered later, blocks IE expression(),
+     * MSIE behavior:, javascript: URLs and @import.
+     */
+    private function sanitize_custom_css(string $css): string {
+        $css = wp_strip_all_tags($css);
+        $css = preg_replace('/expression\s*\(/i', '', $css);
+        $css = preg_replace('/behavior\s*:/i', '', $css);
+        $css = preg_replace('/javascript\s*:/i', '', $css);
+        $css = preg_replace('/-moz-binding/i', '', $css);
+        $css = preg_replace('/@import[^;]*;?/i', '', $css);
+        $css = preg_replace('/url\s*\(\s*["\']?\s*(javascript|data|vbscript):/i', 'url(', $css);
+        return (string) $css;
     }
 
     public function render_settings(): void {
@@ -269,11 +329,16 @@ class CookiesModule extends AbstractModule {
     }
 
     protected function sanitize_settings(array $data): array {
+        $allowed_themes      = ['light', 'dark', 'custom'];
+        $allowed_positions   = ['bottom-left', 'bottom-right', 'top-left', 'top-right', 'center'];
+        $allowed_storage     = ['cookie', 'localStorage'];
+        $allowed_consent     = ['granted', 'denied'];
+
         $sanitized = [
             // General
-            'cookie_name' => sanitize_key($data['cookie_name'] ?? 'werocket_consent'),
-            'cookie_expires_days' => absint($data['cookie_expires_days'] ?? 365),
-            'cookie_domain' => sanitize_text_field($data['cookie_domain'] ?? ''),
+            'cookie_name' => sanitize_key($data['cookie_name'] ?? 'werocket_consent') ?: 'werocket_consent',
+            'cookie_expires_days' => max(1, min(730, absint($data['cookie_expires_days'] ?? 365))),
+            'cookie_domain' => $this->sanitize_cookie_domain((string) ($data['cookie_domain'] ?? '')),
 
             // Behavior
             'must_consent' => !empty($data['must_consent']),
@@ -285,51 +350,52 @@ class CookiesModule extends AbstractModule {
             'required' => !empty($data['required']),
             'opt_out' => !empty($data['opt_out']),
             'group_by_purpose' => !empty($data['group_by_purpose']),
-            'storage_method' => in_array($data['storage_method'] ?? '', ['cookie', 'localStorage']) ? $data['storage_method'] : 'cookie',
+            'storage_method' => in_array($data['storage_method'] ?? '', $allowed_storage, true) ? $data['storage_method'] : 'cookie',
 
-            // Appearance
-            'theme' => sanitize_key($data['theme'] ?? 'light'),
-            'position' => sanitize_key($data['position'] ?? 'bottom-left'),
-            'modal_trigger_position' => sanitize_key($data['modal_trigger_position'] ?? 'bottom-left'),
+            // Appearance (strict whitelists)
+            'theme' => in_array($data['theme'] ?? '', $allowed_themes, true) ? $data['theme'] : 'light',
+            'position' => in_array($data['position'] ?? '', $allowed_positions, true) ? $data['position'] : 'bottom-left',
+            'modal_trigger_position' => in_array($data['modal_trigger_position'] ?? '', $allowed_positions, true) ? $data['modal_trigger_position'] : 'bottom-left',
             'notice_as_modal' => !empty($data['notice_as_modal']),
             'flip_buttons' => !empty($data['flip_buttons']),
             'html_texts' => !empty($data['html_texts']),
 
-            // Colors
-            'color_primary' => sanitize_hex_color($data['color_primary'] ?? '#059669'),
-            'color_primary_hover' => sanitize_hex_color($data['color_primary_hover'] ?? '#047857'),
-            'color_background' => sanitize_hex_color($data['color_background'] ?? '#ffffff'),
-            'color_text' => sanitize_hex_color($data['color_text'] ?? '#1f2937'),
-            'color_text_secondary' => sanitize_hex_color($data['color_text_secondary'] ?? '#6b7280'),
-            'color_border' => sanitize_hex_color($data['color_border'] ?? '#e5e7eb'),
-            'color_toggle_on' => sanitize_hex_color($data['color_toggle_on'] ?? '#059669'),
-            'color_toggle_off' => sanitize_hex_color($data['color_toggle_off'] ?? '#d1d5db'),
+            // Colors (sanitize_hex_color returns null on invalid → fallback)
+            'color_primary' => sanitize_hex_color($data['color_primary'] ?? '') ?? '#059669',
+            'color_primary_hover' => sanitize_hex_color($data['color_primary_hover'] ?? '') ?? '#047857',
+            'color_background' => sanitize_hex_color($data['color_background'] ?? '') ?? '#ffffff',
+            'color_text' => sanitize_hex_color($data['color_text'] ?? '') ?? '#1f2937',
+            'color_text_secondary' => sanitize_hex_color($data['color_text_secondary'] ?? '') ?? '#6b7280',
+            'color_border' => sanitize_hex_color($data['color_border'] ?? '') ?? '#e5e7eb',
+            'color_toggle_on' => sanitize_hex_color($data['color_toggle_on'] ?? '') ?? '#059669',
+            'color_toggle_off' => sanitize_hex_color($data['color_toggle_off'] ?? '') ?? '#d1d5db',
 
             // Texts
             'texts' => $this->sanitize_texts($data['texts'] ?? []),
 
             // GCM
             'gcm_enabled' => !empty($data['gcm_enabled']),
-            'gcm_default_analytics' => in_array($data['gcm_default_analytics'] ?? '', ['granted', 'denied']) ? $data['gcm_default_analytics'] : 'denied',
-            'gcm_default_ad_storage' => in_array($data['gcm_default_ad_storage'] ?? '', ['granted', 'denied']) ? $data['gcm_default_ad_storage'] : 'denied',
-            'gcm_default_ad_user_data' => in_array($data['gcm_default_ad_user_data'] ?? '', ['granted', 'denied']) ? $data['gcm_default_ad_user_data'] : 'denied',
-            'gcm_default_ad_personalization' => in_array($data['gcm_default_ad_personalization'] ?? '', ['granted', 'denied']) ? $data['gcm_default_ad_personalization'] : 'denied',
-            'gcm_default_functionality' => in_array($data['gcm_default_functionality'] ?? '', ['granted', 'denied']) ? $data['gcm_default_functionality'] : 'granted',
-            'gcm_default_security' => in_array($data['gcm_default_security'] ?? '', ['granted', 'denied']) ? $data['gcm_default_security'] : 'granted',
-            'gcm_wait_for_update' => absint($data['gcm_wait_for_update'] ?? 500),
-            'gcm_region' => sanitize_text_field($data['gcm_region'] ?? ''),
+            'gcm_default_analytics' => in_array($data['gcm_default_analytics'] ?? '', $allowed_consent, true) ? $data['gcm_default_analytics'] : 'denied',
+            'gcm_default_ad_storage' => in_array($data['gcm_default_ad_storage'] ?? '', $allowed_consent, true) ? $data['gcm_default_ad_storage'] : 'denied',
+            'gcm_default_ad_user_data' => in_array($data['gcm_default_ad_user_data'] ?? '', $allowed_consent, true) ? $data['gcm_default_ad_user_data'] : 'denied',
+            'gcm_default_ad_personalization' => in_array($data['gcm_default_ad_personalization'] ?? '', $allowed_consent, true) ? $data['gcm_default_ad_personalization'] : 'denied',
+            'gcm_default_functionality' => in_array($data['gcm_default_functionality'] ?? '', $allowed_consent, true) ? $data['gcm_default_functionality'] : 'granted',
+            'gcm_default_security' => in_array($data['gcm_default_security'] ?? '', $allowed_consent, true) ? $data['gcm_default_security'] : 'granted',
+            'gcm_wait_for_update' => max(0, min(5000, absint($data['gcm_wait_for_update'] ?? 500))),
+            'gcm_region' => $this->sanitize_gcm_region((string) ($data['gcm_region'] ?? '')),
 
-            // Services
+            // Services & purposes
             'services' => $this->sanitize_services($data['services'] ?? []),
-
-            // Purposes
             'purposes' => $this->sanitize_purposes($data['purposes'] ?? []),
 
             // Advanced
-            'additional_class' => sanitize_html_class($data['additional_class'] ?? ''),
-            'custom_css' => wp_strip_all_tags($data['custom_css'] ?? ''),
-            'callback_on_accept' => sanitize_text_field($data['callback_on_accept'] ?? ''),
-            'callback_on_decline' => sanitize_text_field($data['callback_on_decline'] ?? ''),
+            'additional_class' => $this->sanitize_class_list((string) ($data['additional_class'] ?? '')),
+            'custom_css' => $this->sanitize_custom_css((string) ($data['custom_css'] ?? '')),
+            // WARNING: callback_on_accept/decline contain raw JS user input.
+            // They are stored after wp_strip_all_tags + length cap, but MUST NEVER
+            // be echoed without esc_js() — and even then, treat as untrusted code.
+            'callback_on_accept' => substr(wp_strip_all_tags((string) ($data['callback_on_accept'] ?? '')), 0, 2000),
+            'callback_on_decline' => substr(wp_strip_all_tags((string) ($data['callback_on_decline'] ?? '')), 0, 2000),
         ];
 
         return $sanitized;
@@ -351,22 +417,38 @@ class CookiesModule extends AbstractModule {
     }
 
     private function sanitize_services(array $services): array {
-        $sanitized = [];
+        $sanitized   = [];
+        $seen_names  = [];
+        $valid_purposes = ['necessary', 'analytics', 'marketing', 'preferences'];
 
         foreach ($services as $service) {
-            if (empty($service['name'])) continue;
+            if (!is_array($service) || empty($service['name'])) continue;
+            $name = sanitize_key($service['name']);
+            if ($name === '' || isset($seen_names[$name])) continue;
+            $seen_names[$name] = true;
+
+            // Filter purposes to whitelist
+            $raw_purposes = array_map('sanitize_key', (array)($service['purposes'] ?? []));
+            $purposes = array_values(array_intersect($raw_purposes, $valid_purposes));
+
+            // Cookies : strip non-printable, cap length per entry
+            $cookies = [];
+            foreach ((array)($service['cookies'] ?? []) as $cookie) {
+                $cookie = substr(sanitize_text_field((string) $cookie), 0, 100);
+                if ($cookie !== '') $cookies[] = $cookie;
+            }
 
             $sanitized[] = [
-                'name' => sanitize_key($service['name']),
-                'title' => sanitize_text_field($service['title'] ?? ''),
-                'description' => wp_kses_post($service['description'] ?? ''),
-                'purposes' => array_map('sanitize_key', (array)($service['purposes'] ?? [])),
-                'cookies' => array_map('sanitize_text_field', (array)($service['cookies'] ?? [])),
-                'required' => !empty($service['required']),
-                'default' => !empty($service['default']),
-                'opt_out' => !empty($service['opt_out']),
-                'only_once' => !empty($service['only_once']),
-                'enabled' => !empty($service['enabled']),
+                'name'        => $name,
+                'title'       => substr(sanitize_text_field($service['title'] ?? ''), 0, 200),
+                'description' => substr(wp_kses_post($service['description'] ?? ''), 0, 1000),
+                'purposes'    => $purposes,
+                'cookies'     => $cookies,
+                'required'    => !empty($service['required']),
+                'default'     => !empty($service['default']),
+                'opt_out'     => !empty($service['opt_out']),
+                'only_once'   => !empty($service['only_once']),
+                'enabled'     => !empty($service['enabled']),
             ];
         }
 
@@ -408,13 +490,23 @@ class CookiesModule extends AbstractModule {
         echo '<div id="werocket-klaro"></div>' . "\n";
         ?>
 <style id="werocket-klaro-hide">.klaro .cookie-modal,.klaro .cookie-notice,.klaro .cookie-modal-backdrop{display:none !important}</style>
-<script defer src="https://cdn.kiprotect.com/klaro/v0.7/klaro.js"></script>
+<script defer src="https://cdn.kiprotect.com/klaro/v0.7/klaro.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function(){
+    var dispatch = function(name){ document.dispatchEvent(new CustomEvent(name)); };
     window.WeRocketCookies = {
-        showSettings: function(){ document.dispatchEvent(new CustomEvent('werocket:open-settings')); },
-        showBanner:   function(){ document.dispatchEvent(new CustomEvent('werocket:show-banner')); }
+        showSettings: function(){ dispatch('werocket:open-settings'); },
+        showBanner:   function(){ dispatch('werocket:show-banner'); }
     };
+    // CSP-friendly delegation for shortcode-rendered triggers
+    document.addEventListener('click', function(e){
+        var target = e.target && e.target.closest && e.target.closest('[data-werocket-cookie-trigger]');
+        if (!target) return;
+        e.preventDefault();
+        var action = target.getAttribute('data-werocket-cookie-trigger');
+        if (action === 'settings') dispatch('werocket:open-settings');
+        else if (action === 'banner') dispatch('werocket:show-banner');
+    });
 })();
 </script>
         <?php
