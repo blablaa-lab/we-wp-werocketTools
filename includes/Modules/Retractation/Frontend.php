@@ -32,6 +32,44 @@ class Frontend {
         add_shortcode(self::SHORTCODE, [$this, 'render_shortcode']);
 
         add_action('template_redirect', [$this, 'maybe_handle_submission']);
+        add_action('wp_enqueue_scripts', [$this, 'maybe_enqueue_assets']);
+    }
+
+    /** Enqueue conditionnel : seulement sur le endpoint My Account ou pages contenant le shortcode. */
+    public function maybe_enqueue_assets(): void {
+        if (!$this->should_enqueue_assets()) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'wr-retractation-fonts',
+            'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap',
+            [],
+            null
+        );
+
+        wp_enqueue_style(
+            'wr-retractation',
+            WEROCKET_TOOLS_PLUGIN_URL . 'assets/css/retractation.css',
+            ['wr-retractation-fonts'],
+            WEROCKET_TOOLS_VERSION
+        );
+    }
+
+    private function should_enqueue_assets(): bool {
+        global $wp_query, $post;
+
+        // Endpoint My Account
+        if (is_account_page() && isset($wp_query->query_vars[self::ENDPOINT_QUERY_VAR])) {
+            return true;
+        }
+
+        // Page contenant le shortcode
+        if ($post instanceof \WP_Post && has_shortcode((string) $post->post_content, self::SHORTCODE)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function register_endpoint(): void {
