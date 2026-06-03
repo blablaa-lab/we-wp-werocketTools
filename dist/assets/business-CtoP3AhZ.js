@@ -1,4 +1,4 @@
-import{c as u,r as a,j as s,a as d}from"./createReactComponent-DiejR-2T.js";import{I as h,a as g,b as x}from"./IconPhone-DAsSIdHl.js";/**
+import{c as u,r as a,j as s,a as d}from"./createReactComponent-B5PNVN8r.js";import{I as h,a as g,b as x}from"./IconPhone-BiDY9Ra3.js";/**
  * @license @tabler/icons-react v3.44.0 - MIT
  *
  * This source code is licensed under the MIT license.

@@ -48,15 +48,15 @@ export function App() {
           <span className="text-sm">Chargement...</span>
         </div>
       ) : (
-        <>
+        <div className="mr-4">
           <TabsNav modules={modules} currentTab={tab} onNavigate={navigate} />
-          <div className="mt-4 mr-4">
+          <div>
             {tab === 'dashboard' && <Dashboard {...pageProps} onNavigate={navigate} />}
             {tab === 'cookies' && <CookiesSettings />}
             {tab === 'google_reviews' && <ReviewsSettings />}
             {tab === 'google_business' && <BusinessSettings />}
           </div>
-        </>
+        </div>
       )}
 
       <Toaster richColors position="bottom-right" />

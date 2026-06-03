@@ -96,21 +96,21 @@ export function CookiesSettings() {
       />
 
       <Tabs defaultValue="general">
-        <TabsList className="flex flex-wrap h-auto gap-1 mb-2">
-          <TabsTrigger value="general" className="gap-1.5 text-xs"><IconDatabase size={13} />Général</TabsTrigger>
-          <TabsTrigger value="behavior" className="gap-1.5 text-xs"><IconAdjustmentsHorizontal size={13} />Comportement</TabsTrigger>
-          <TabsTrigger value="appearance" className="gap-1.5 text-xs"><IconPalette size={13} />Apparence</TabsTrigger>
-          <TabsTrigger value="texts" className="gap-1.5 text-xs"><IconFileText size={13} />Textes</TabsTrigger>
-          <TabsTrigger value="services" className="gap-1.5 text-xs"><IconCookie size={13} />Services</TabsTrigger>
-          <TabsTrigger value="gcm" className="gap-1.5 text-xs"><IconBrandGoogle size={13} />Consent Mode</TabsTrigger>
-          <TabsTrigger value="advanced" className="gap-1.5 text-xs"><IconCode size={13} />Avancé</TabsTrigger>
+        <TabsList className="flex flex-wrap h-auto w-fit rounded-3xl">
+          <TabsTrigger value="general"><IconDatabase />Général</TabsTrigger>
+          <TabsTrigger value="behavior"><IconAdjustmentsHorizontal />Comportement</TabsTrigger>
+          <TabsTrigger value="appearance"><IconPalette />Apparence</TabsTrigger>
+          <TabsTrigger value="texts"><IconFileText />Textes</TabsTrigger>
+          <TabsTrigger value="services"><IconCookie />Services</TabsTrigger>
+          <TabsTrigger value="gcm"><IconBrandGoogle />Consent Mode</TabsTrigger>
+          <TabsTrigger value="advanced"><IconCode />Avancé</TabsTrigger>
         </TabsList>
 
         {/* ─── Général ─── */}
         <TabsContent value="general">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Cookie de stockage</CardTitle>
+            <CardHeader>
+              <CardTitle>Cookie de stockage</CardTitle>
               <CardDescription>Paramètres du cookie de consentement Klaro</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -139,8 +139,8 @@ export function CookiesSettings() {
         {/* ─── Comportement ─── */}
         <TabsContent value="behavior">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Comportement du bandeau</CardTitle>
+            <CardHeader>
+              <CardTitle>Comportement du bandeau</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <SwitchRow label="Consentement obligatoire" description="Bloque l'accès au site jusqu'au consentement" name="must_consent" watch={watch} setValue={setValue} />
@@ -161,8 +161,8 @@ export function CookiesSettings() {
         <TabsContent value="appearance">
           <div className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Disposition</CardTitle>
+              <CardHeader>
+                <CardTitle>Disposition</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Thème">
@@ -191,8 +191,8 @@ export function CookiesSettings() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Couleurs personnalisées</CardTitle>
+              <CardHeader>
+                <CardTitle>Couleurs personnalisées</CardTitle>
                 <CardDescription>Actives uniquement avec le thème "Personnalisé"</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -226,8 +226,8 @@ export function CookiesSettings() {
         <TabsContent value="texts">
           <div className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Notice principale</CardTitle>
+              <CardHeader>
+                <CardTitle>Notice principale</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Field label="Titre">
@@ -240,8 +240,8 @@ export function CookiesSettings() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Boutons</CardTitle>
+              <CardHeader>
+                <CardTitle>Boutons</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Field label="Tout accepter"><Input {...register('texts.accept_all')} /></Field>
@@ -254,8 +254,8 @@ export function CookiesSettings() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Liens légaux</CardTitle>
+              <CardHeader>
+                <CardTitle>Liens légaux</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Texte politique de confidentialité">
@@ -274,8 +274,8 @@ export function CookiesSettings() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Finalités</CardTitle>
+              <CardHeader>
+                <CardTitle>Finalités</CardTitle>
                 <CardDescription>Titres et descriptions des catégories de consentement</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -301,8 +301,8 @@ export function CookiesSettings() {
         {/* ─── Services ─── */}
         <TabsContent value="services">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Services de tracking</CardTitle>
+            <CardHeader>
+              <CardTitle>Services de tracking</CardTitle>
               <CardDescription>Activez les services présents sur votre site et configurez leurs paramètres</CardDescription>
             </CardHeader>
             <CardContent>
@@ -378,8 +378,8 @@ export function CookiesSettings() {
         {/* ─── Google Consent Mode ─── */}
         <TabsContent value="gcm">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Google Consent Mode v2</CardTitle>
+            <CardHeader>
+              <CardTitle>Google Consent Mode v2</CardTitle>
               <CardDescription>Paramètres des défauts de consentement envoyés à Google avant toute interaction</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -419,8 +419,8 @@ export function CookiesSettings() {
         <TabsContent value="advanced">
           <div className="space-y-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">CSS & classes</CardTitle>
+              <CardHeader>
+                <CardTitle>CSS & classes</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Field label="Classe CSS additionnelle">
@@ -433,8 +433,8 @@ export function CookiesSettings() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Callbacks JavaScript</CardTitle>
+              <CardHeader>
+                <CardTitle>Callbacks JavaScript</CardTitle>
                 <CardDescription>Code exécuté après acceptation ou refus (usage avancé)</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -448,8 +448,8 @@ export function CookiesSettings() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Shortcodes disponibles</CardTitle>
+              <CardHeader>
+                <CardTitle>Shortcodes disponibles</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <div>

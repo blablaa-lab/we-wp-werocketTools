@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import {
   IconBuildingStore, IconPhone, IconMapPin, IconClock, IconBrandFacebook, IconLoader2
 } from '@tabler/icons-react'
@@ -58,23 +59,21 @@ export function BusinessSettings() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2"><IconBuildingStore size={16} /> Informations générales</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><IconBuildingStore size={16} /> Informations générales</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Field label="Nom de l'entreprise"><Input {...register('business_name')} /></Field>
             <Field label="Type d'entreprise"><Input {...register('business_type')} /></Field>
             <Field label="Description">
-              <textarea {...register('description')}
-                className="w-full h-24 rounded-md border border-input bg-background px-3 py-2 text-sm resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
+              <Textarea {...register('description')} rows={4} />
             </Field>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2"><IconPhone size={16} /> Contact</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><IconPhone size={16} /> Contact</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Field label="Téléphone"><Input {...register('phone')} type="tel" /></Field>
@@ -84,8 +83,8 @@ export function BusinessSettings() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2"><IconMapPin size={16} /> Adresse</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><IconMapPin size={16} /> Adresse</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Field label="Rue"><Input {...register('address.street')} /></Field>
@@ -103,8 +102,8 @@ export function BusinessSettings() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2"><IconBrandFacebook size={16} /> Réseaux sociaux</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><IconBrandFacebook size={16} /> Réseaux sociaux</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Field label="Facebook"><Input {...register('social_links.facebook')} type="url" /></Field>
@@ -116,8 +115,8 @@ export function BusinessSettings() {
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2"><IconClock size={16} /> Horaires d'ouverture</CardTitle>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><IconClock size={16} /> Horaires d'ouverture</CardTitle>
           <CardDescription>Laissez vide pour les jours fermés</CardDescription>
         </CardHeader>
         <CardContent>
@@ -148,12 +147,12 @@ export function BusinessSettings() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="pt-4">
-          <div className="flex items-center justify-between">
+      <Card size="sm">
+        <CardContent>
+          <div className="flex items-center justify-between gap-4">
             <div>
               <Label className="text-sm font-medium">Données structurées Schema.org</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Injecter le JSON-LD dans le &lt;head&gt; de chaque page</p>
+              <p className="text-xs text-muted-foreground mt-1">Injecter le JSON-LD dans le &lt;head&gt; de chaque page</p>
             </div>
             <Switch
               checked={!!watch('enable_structured_data')}

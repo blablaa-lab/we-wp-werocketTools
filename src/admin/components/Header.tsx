@@ -1,4 +1,5 @@
 import { IconBolt } from '@tabler/icons-react'
+import { Badge } from '@/components/ui/badge'
 
 export function Header() {
   const root = document.getElementById('werocket-admin-root')!
@@ -6,17 +7,16 @@ export function Header() {
 
   return (
     <div
-      className="bg-cover bg-center px-20 py-8 rounded-lg mb-6 mt-4 mr-4"
+      className="relative overflow-hidden bg-cover bg-center px-10 py-8 rounded-4xl mb-6 mt-4 mr-4 ring-1 ring-foreground/5"
       style={{ backgroundImage: `url(${pluginUrl}assets/images/banner.jpg)` }}
     >
-      <div className="flex items-center justify-between">
-        <img src={`${pluginUrl}assets/images/logo.png`} alt="WeRocket Tools" className="h-16" />
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary/15 rounded-full flex items-center justify-center">
-            <IconBolt size={20} className="text-primary" />
-          </div>
-          <span className="text-xl text-white">v {version}</span>
-        </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" aria-hidden />
+      <div className="relative flex items-center justify-between">
+        <img src={`${pluginUrl}assets/images/logo.png`} alt="WeRocket Tools" className="h-14" />
+        <Badge variant="secondary" className="h-8 gap-1.5 px-3 backdrop-blur bg-background/80">
+          <IconBolt size={14} className="text-primary" />
+          <span className="font-medium">v {version}</span>
+        </Badge>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { IconKey, IconEye, IconLoader2 } from '@tabler/icons-react'
 import { api } from '@/lib/api'
 import { ModuleHeader } from '../components/ModuleHeader'
@@ -47,8 +48,8 @@ export function ReviewsSettings() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2"><IconKey size={16} /> API Google</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><IconKey size={16} /> API Google</CardTitle>
             <CardDescription>Clés nécessaires pour récupérer les avis</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -65,8 +66,8 @@ export function ReviewsSettings() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2"><IconEye size={16} /> Affichage</CardTitle>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><IconEye size={16} /> Affichage</CardTitle>
             <CardDescription>Paramètres de rendu des avis</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -103,13 +104,14 @@ export function ReviewsSettings() {
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">CSS personnalisé</CardTitle>
+        <CardHeader>
+          <CardTitle>CSS personnalisé</CardTitle>
         </CardHeader>
         <CardContent>
-          <textarea
+          <Textarea
             {...register('custom_css')}
-            className="w-full h-32 rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            rows={6}
+            className="font-mono text-xs"
             placeholder=".werocket-review { ... }"
           />
         </CardContent>

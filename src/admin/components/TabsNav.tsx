@@ -3,9 +3,9 @@ import { cn } from '@/lib/utils'
 import type { Module } from '@/lib/types'
 
 const MODULE_ICONS: Record<string, React.ReactNode> = {
-  cookies: <IconCookie size={18} />,
-  google_reviews: <IconStarFilled size={18} />,
-  google_business: <IconBuildingStore size={18} />,
+  cookies: <IconCookie size={16} />,
+  google_reviews: <IconStarFilled size={16} />,
+  google_business: <IconBuildingStore size={16} />,
 }
 
 interface Props {
@@ -15,22 +15,25 @@ interface Props {
 }
 
 export function TabsNav({ modules, currentTab, onNavigate }: Props) {
-  const linkClass = (active: boolean) =>
+  const tabClass = (active: boolean) =>
     cn(
-      'flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors cursor-pointer select-none no-underline',
+      'relative inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all cursor-pointer select-none',
       active
-        ? 'border-primary text-primary'
-        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+        ? 'bg-background text-foreground shadow-sm ring-1 ring-foreground/5'
+        : 'text-muted-foreground hover:text-foreground'
     )
 
   return (
-    <nav className="bg-card rounded-xl border shadow-sm mr-4 mb-6 flex items-center" aria-label="Onglets">
-      <button type="button" className={linkClass(currentTab === 'dashboard')} onClick={() => onNavigate('dashboard')}>
-        <IconLayoutDashboard size={20} />
+    <nav
+      className="bg-muted rounded-full p-1 mb-6 inline-flex items-center gap-1"
+      aria-label="Navigation principale"
+    >
+      <button type="button" className={tabClass(currentTab === 'dashboard')} onClick={() => onNavigate('dashboard')}>
+        <IconLayoutDashboard size={16} />
         Tableau de bord
       </button>
       {modules.map(m => (
-        <button type="button" key={m.id} className={linkClass(currentTab === m.id)} onClick={() => onNavigate(m.id)}>
+        <button type="button" key={m.id} className={tabClass(currentTab === m.id)} onClick={() => onNavigate(m.id)}>
           {MODULE_ICONS[m.id] ?? null}
           {m.name}
         </button>
