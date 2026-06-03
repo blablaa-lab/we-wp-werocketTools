@@ -27,6 +27,7 @@ class GoogleReviewsModule extends AbstractModule {
     public function render_settings(): void {}
 
     private const TEMPLATES = ['minimal', 'classic', 'card', 'quote', 'google'];
+    private const SHADOWS = ['none', 'subtle', 'medium', 'strong'];
 
     protected function get_default_settings(): array {
         return [
@@ -41,13 +42,36 @@ class GoogleReviewsModule extends AbstractModule {
             'show_avatar' => true,
             'cache_duration' => 3600,
             'custom_css' => '',
-            'grid_columns' => 3,
-            'grid_gap' => 'md',
+
+            'grid_columns'    => ['desktop' => 3,  'tablet' => 2,  'mobile' => 1],
+            'grid_gap'        => ['desktop' => 16, 'tablet' => 12, 'mobile' => 8],
+            'card_padding'    => ['desktop' => 24, 'tablet' => 20, 'mobile' => 16],
+            'carousel_slides' => ['desktop' => 3,  'tablet' => 2,  'mobile' => 1],
+
+            'card_radius' => 12,
+            'card_shadow' => 'subtle',
+
             'carousel_autoplay' => false,
             'carousel_autoplay_speed' => 5,
             'carousel_loop' => true,
             'carousel_show_arrows' => true,
             'carousel_show_dots' => true,
+        ];
+    }
+
+    private function sanitize_responsive($data, int $min, int $max, array $defaults): array {
+        if (!is_array($data)) {
+            // Migration de l'ancien format plat (number ou string)
+            if (is_numeric($data)) {
+                $val = max($min, min($max, (int) $data));
+                return ['desktop' => $val, 'tablet' => $val, 'mobile' => $val];
+            }
+            return $defaults;
+        }
+        return [
+            'desktop' => max($min, min($max, (int) ($data['desktop'] ?? $defaults['desktop']))),
+            'tablet'  => max($min, min($max, (int) ($data['tablet']  ?? $defaults['tablet']))),
+            'mobile'  => max($min, min($max, (int) ($data['mobile']  ?? $defaults['mobile']))),
         ];
     }
 
@@ -57,16 +81,23 @@ class GoogleReviewsModule extends AbstractModule {
             $template = 'classic';
         }
 
-        $grid_gap = $data['grid_gap'] ?? 'md';
-        if (!in_array($grid_gap, ['sm', 'md', 'lg'], true)) {
-            $grid_gap = 'md';
+        $shadow = $data['card_shadow'] ?? 'subtle';
+        if (!in_array($shadow, self::SHADOWS, true)) {
+            $shadow = 'subtle';
         }
 
-        $grid_columns = (int) ($data['grid_columns'] ?? 3);
-        $grid_columns = max(1, min(4, $grid_columns));
+        // Migration "old" grid_gap (sm/md/lg) → numérique
+        $old_gap_map = ['sm' => 8, 'md' => 16, 'lg' => 24];
+        if (isset($data['grid_gap']) && is_string($data['grid_gap']) && isset($old_gap_map[$data['grid_gap']])) {
+            $v = $old_gap_map[$data['grid_gap']];
+            $data['grid_gap'] = ['desktop' => $v, 'tablet' => $v, 'mobile' => max(8, $v - 4)];
+        }
 
         $autoplay_speed = (int) ($data['carousel_autoplay_speed'] ?? 5);
         $autoplay_speed = max(2, min(30, $autoplay_speed));
+
+        $card_radius = (int) ($data['card_radius'] ?? 12);
+        $card_radius = max(0, min(32, $card_radius));
 
         return [
             'google_place_id' => sanitize_text_field($data['google_place_id'] ?? ''),
@@ -80,8 +111,15 @@ class GoogleReviewsModule extends AbstractModule {
             'show_avatar' => !empty($data['show_avatar']),
             'cache_duration' => absint($data['cache_duration'] ?? 3600),
             'custom_css' => sanitize_textarea_field($data['custom_css'] ?? ''),
-            'grid_columns' => $grid_columns,
-            'grid_gap' => $grid_gap,
+
+            'grid_columns'    => $this->sanitize_responsive($data['grid_columns']    ?? null, 1, 4,  ['desktop' => 3,  'tablet' => 2,  'mobile' => 1]),
+            'grid_gap'        => $this->sanitize_responsive($data['grid_gap']        ?? null, 0, 48, ['desktop' => 16, 'tablet' => 12, 'mobile' => 8]),
+            'card_padding'    => $this->sanitize_responsive($data['card_padding']    ?? null, 8, 40, ['desktop' => 24, 'tablet' => 20, 'mobile' => 16]),
+            'carousel_slides' => $this->sanitize_responsive($data['carousel_slides'] ?? null, 1, 4,  ['desktop' => 3,  'tablet' => 2,  'mobile' => 1]),
+
+            'card_radius' => $card_radius,
+            'card_shadow' => $shadow,
+
             'carousel_autoplay' => !empty($data['carousel_autoplay']),
             'carousel_autoplay_speed' => $autoplay_speed,
             'carousel_loop' => !empty($data['carousel_loop']),

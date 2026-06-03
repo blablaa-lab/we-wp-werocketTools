@@ -1,47 +1,120 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import type { ReviewsSettings, GridGap } from '@/lib/types'
+import type { ReviewsSettings, ResponsiveValue, CardShadow } from '@/lib/types'
 
-const GAP_CLASS: Record<GridGap, string> = {
-  sm: 'gap-2',
-  md: 'gap-4',
-  lg: 'gap-6',
+const SHADOW_MAP: Record<CardShadow, string> = {
+  none:   'none',
+  subtle: '0 1px 2px rgba(60, 64, 67, 0.06)',
+  medium: '0 4px 12px rgba(60, 64, 67, 0.08), 0 1px 3px rgba(60, 64, 67, 0.05)',
+  strong: '0 8px 24px rgba(60, 64, 67, 0.12), 0 2px 6px rgba(60, 64, 67, 0.06)',
 }
 
-const COLS_CLASS: Record<number, string> = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-1 sm:grid-cols-2',
-  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+const TABLET_BP = 768
+const DESKTOP_BP = 1024
+
+function pickResponsive<T>(rv: ResponsiveValue<T> | undefined, fallback: ResponsiveValue<T>): ResponsiveValue<T> {
+  if (!rv || typeof rv !== 'object' || !('desktop' in rv)) return fallback
+  return rv
 }
 
-export interface LayoutProps {
+function buildResponsiveCSS(scope: string, settings: Partial<ReviewsSettings>): string {
+  const cols    = pickResponsive(settings.grid_columns,    { desktop: 3, tablet: 2, mobile: 1 })
+  const gap     = pickResponsive(settings.grid_gap,        { desktop: 16, tablet: 12, mobile: 8 })
+  const padding = pickResponsive(settings.card_padding,    { desktop: 24, tablet: 20, mobile: 16 })
+  const slides  = pickResponsive(settings.carousel_slides, { desktop: 3, tablet: 2, mobile: 1 })
+
+  const radius = typeof settings.card_radius === 'number' ? settings.card_radius : 12
+  const shadow = SHADOW_MAP[settings.card_shadow ?? 'subtle']
+
+  const block = (cols: number, gapPx: number, paddingPx: number, slidesN: number) => `
+    --wr-cols: ${cols};
+    --wr-gap: ${gapPx}px;
+    --wr-card-padding: ${paddingPx}px;
+    --wr-slides: ${slidesN};
+  `
+
+  return `
+${scope} {
+  --wr-card-radius: ${radius}px;
+  --wr-card-shadow: ${shadow};
+  ${block(cols.mobile, gap.mobile, padding.mobile, slides.mobile)}
+}
+@media (min-width: ${TABLET_BP}px) {
+  ${scope} { ${block(cols.tablet, gap.tablet, padding.tablet, slides.tablet)} }
+}
+@media (min-width: ${DESKTOP_BP}px) {
+  ${scope} { ${block(cols.desktop, gap.desktop, padding.desktop, slides.desktop)} }
+}
+`.trim()
+}
+
+interface LayoutProps {
   children: ReactNode[]
   settings: Partial<ReviewsSettings>
 }
 
 export function ReviewsLayout({ children, settings }: LayoutProps) {
+  const uid = useId().replace(/[:]/g, '')
+  const scope = `.wr-reviews-${uid}`
+  const css = useMemo(() => buildResponsiveCSS(scope, settings), [scope, settings])
+
+  /* Injection style tag scoped à cette instance */
+  useEffect(() => {
+    const id = `wr-reviews-style-${uid}`
+    let el = document.getElementById(id) as HTMLStyleElement | null
+    if (!el) {
+      el = document.createElement('style')
+      el.id = id
+      document.head.appendChild(el)
+    }
+    el.textContent = css
+    return () => {
+      const node = document.getElementById(id)
+      if (node) node.remove()
+    }
+  }, [uid, css])
+
   const style = settings.display_style || 'grid'
+  const className = `wr-reviews-${uid}`
 
   if (style === 'list') {
-    return <div className={cn('flex flex-col', GAP_CLASS[settings.grid_gap ?? 'md'])}>{children}</div>
+    return (
+      <div className={cn(className, 'flex flex-col')} style={{ gap: 'var(--wr-gap)' }}>
+        {children}
+      </div>
+    )
   }
 
   if (style === 'carousel') {
-    return <Carousel settings={settings}>{children}</Carousel>
+    return <Carousel className={className} settings={settings}>{children}</Carousel>
   }
 
-  const cols = Math.max(1, Math.min(4, Number(settings.grid_columns ?? 3)))
-  const gap = settings.grid_gap ?? 'md'
-
   return (
-    <div className={cn('grid', COLS_CLASS[cols], GAP_CLASS[gap])}>{children}</div>
+    <div
+      className={cn(className, 'grid')}
+      style={{
+        gridTemplateColumns: 'repeat(var(--wr-cols), minmax(0, 1fr))',
+        gap: 'var(--wr-gap)',
+      }}
+    >
+      {children}
+    </div>
   )
 }
 
-/* ─── Carousel ─── */
+/* ────────────────────────────────────────────────────────────── */
+/*  Carousel                                                       */
+/* ────────────────────────────────────────────────────────────── */
 
-function Carousel({ children, settings }: { children: ReactNode[]; settings: Partial<ReviewsSettings> }) {
+function Carousel({
+  children,
+  settings,
+  className,
+}: {
+  children: ReactNode[]
+  settings: Partial<ReviewsSettings>
+  className: string
+}) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState(0)
   const [maxIndex, setMaxIndex] = useState(0)
@@ -54,14 +127,14 @@ function Carousel({ children, settings }: { children: ReactNode[]; settings: Par
   const showDots = settings.carousel_show_dots !== false
   const count = children.length
 
-  /* Recompute maxIndex (dernière position scrollable) au resize */
   useEffect(() => {
     const el = trackRef.current
     if (!el) return
     const update = () => {
       const card = el.querySelector<HTMLElement>('[data-carousel-slide]')
       if (!card) return
-      const cardWidth = card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || '16')
+      const gapPx = parseFloat(getComputedStyle(el).columnGap || '16')
+      const cardWidth = card.offsetWidth + gapPx
       const visible = Math.max(1, Math.floor(el.clientWidth / cardWidth))
       setMaxIndex(Math.max(0, count - visible))
     }
@@ -76,7 +149,8 @@ function Carousel({ children, settings }: { children: ReactNode[]; settings: Par
     if (!el) return
     const card = el.querySelector<HTMLElement>('[data-carousel-slide]')
     if (!card) return
-    const cardWidth = card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || '16')
+    const gapPx = parseFloat(getComputedStyle(el).columnGap || '16')
+    const cardWidth = card.offsetWidth + gapPx
     el.scrollTo({ left: i * cardWidth, behavior: 'smooth' })
     setIndex(i)
   }
@@ -88,7 +162,6 @@ function Carousel({ children, settings }: { children: ReactNode[]; settings: Par
     scrollTo(next)
   }
 
-  /* Autoplay */
   useEffect(() => {
     if (!autoplay || paused || count <= 1) return
     const id = setInterval(() => go(1), speed * 1000)
@@ -96,38 +169,37 @@ function Carousel({ children, settings }: { children: ReactNode[]; settings: Par
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [autoplay, paused, speed, index, maxIndex, loop, count])
 
-  /* Sync index sur scroll manuel */
   function handleScroll() {
     const el = trackRef.current
     if (!el) return
     const card = el.querySelector<HTMLElement>('[data-carousel-slide]')
     if (!card) return
-    const cardWidth = card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || '16')
+    const gapPx = parseFloat(getComputedStyle(el).columnGap || '16')
+    const cardWidth = card.offsetWidth + gapPx
     const i = Math.round(el.scrollLeft / cardWidth)
     if (i !== index) setIndex(i)
   }
 
-  const gap = settings.grid_gap ?? 'md'
-
   return (
     <div
-      className="relative"
+      className={cn(className, 'relative')}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       <div
         ref={trackRef}
         onScroll={handleScroll}
-        className={cn(
-          'flex overflow-x-auto pb-1 [scroll-snap-type:x_mandatory] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden',
-          GAP_CLASS[gap]
-        )}
+        className="flex overflow-x-auto pb-1 [scroll-snap-type:x_mandatory] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        style={{ gap: 'var(--wr-gap)' }}
       >
         {children.map((child, i) => (
           <div
             key={i}
             data-carousel-slide
-            className="flex-none w-[85%] sm:w-[48%] lg:w-[32%] [scroll-snap-align:start]"
+            className="flex-none [scroll-snap-align:start]"
+            style={{
+              width: 'calc((100% - (var(--wr-slides) - 1) * var(--wr-gap)) / var(--wr-slides))',
+            }}
           >
             {child}
           </div>

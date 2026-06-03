@@ -1,7 +1,7 @@
 import type { UseFormWatch } from 'react-hook-form'
 import { TEMPLATES } from '@/frontend/reviews/templates'
 import { ReviewsLayout } from '@/frontend/reviews/layout'
-import type { Review, ReviewsSettings, ReviewTemplate, GridGap } from '@/lib/types'
+import type { Review, ReviewsSettings, ReviewTemplate, ResponsiveValue, CardShadow } from '@/lib/types'
 
 const MOCK_REVIEWS: Review[] = [
   {
@@ -45,6 +45,10 @@ const MOCK_REVIEWS: Review[] = [
   },
 ]
 
+const DEFAULT_RV3: ResponsiveValue<number> = { desktop: 3, tablet: 2, mobile: 1 }
+const DEFAULT_GAP: ResponsiveValue<number> = { desktop: 16, tablet: 12, mobile: 8 }
+const DEFAULT_PADDING: ResponsiveValue<number> = { desktop: 24, tablet: 20, mobile: 16 }
+
 interface Props {
   watch: UseFormWatch<ReviewsSettings>
 }
@@ -63,8 +67,15 @@ export function ReviewsPreview({ watch }: Props) {
     show_avatar: watch('show_avatar'),
     min_rating: minRating,
     reviews_count: count,
-    grid_columns: Number(watch('grid_columns') ?? 3),
-    grid_gap: (watch('grid_gap') as GridGap) ?? 'md',
+
+    grid_columns:    (watch('grid_columns')    as ResponsiveValue<number>) ?? DEFAULT_RV3,
+    grid_gap:        (watch('grid_gap')        as ResponsiveValue<number>) ?? DEFAULT_GAP,
+    card_padding:    (watch('card_padding')    as ResponsiveValue<number>) ?? DEFAULT_PADDING,
+    carousel_slides: (watch('carousel_slides') as ResponsiveValue<number>) ?? DEFAULT_RV3,
+
+    card_radius: Number(watch('card_radius') ?? 12),
+    card_shadow: (watch('card_shadow') as CardShadow) ?? 'subtle',
+
     carousel_autoplay: !!watch('carousel_autoplay'),
     carousel_autoplay_speed: Number(watch('carousel_autoplay_speed') ?? 5),
     carousel_loop: watch('carousel_loop') !== false,

@@ -31,7 +31,9 @@ export interface Review {
 }
 
 export type ReviewTemplate = 'minimal' | 'classic' | 'card' | 'quote' | 'google'
-export type GridGap = 'sm' | 'md' | 'lg'
+export type Breakpoint = 'desktop' | 'tablet' | 'mobile'
+export type ResponsiveValue<T> = { desktop: T; tablet: T; mobile: T }
+export type CardShadow = 'none' | 'subtle' | 'medium' | 'strong'
 
 export interface ReviewsSettings {
   google_place_id: string
@@ -45,8 +47,18 @@ export interface ReviewsSettings {
   show_avatar: boolean
   cache_duration: number
   custom_css: string
-  grid_columns: number
-  grid_gap: GridGap
+
+  // Per-breakpoint
+  grid_columns: ResponsiveValue<number>
+  grid_gap: ResponsiveValue<number>
+  card_padding: ResponsiveValue<number>
+  carousel_slides: ResponsiveValue<number>
+
+  // Globaux
+  card_radius: number
+  card_shadow: CardShadow
+
+  // Carrousel
   carousel_autoplay: boolean
   carousel_autoplay_speed: number
   carousel_loop: boolean

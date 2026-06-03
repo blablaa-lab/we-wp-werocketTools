@@ -186,12 +186,13 @@ export function MinimalCard({ review, settings }: TemplateProps) {
 export function ClassicCard({ review, settings }: TemplateProps) {
   return (
     <div
-      className="p-5 h-full flex flex-col"
+      className="h-full flex flex-col"
       style={{
         backgroundColor: '#FFFFFF',
         border: `1px solid ${G.border}`,
-        borderRadius: 12,
-        boxShadow: '0 1px 2px rgba(60, 64, 67, 0.06)',
+        padding: 'var(--wr-card-padding, 20px)',
+        borderRadius: 'var(--wr-card-radius, 12px)',
+        boxShadow: 'var(--wr-card-shadow, 0 1px 2px rgba(60, 64, 67, 0.06))',
       }}
     >
       <div className="flex items-center gap-3 mb-3">
@@ -241,11 +242,12 @@ export function ClassicCard({ review, settings }: TemplateProps) {
 export function CardCard({ review, settings }: TemplateProps) {
   return (
     <div
-      className="relative p-6 h-full flex flex-col overflow-hidden"
+      className="relative h-full flex flex-col overflow-hidden"
       style={{
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        boxShadow: '0 4px 16px rgba(60, 64, 67, 0.08), 0 1px 4px rgba(60, 64, 67, 0.05)',
+        padding: 'var(--wr-card-padding, 24px)',
+        borderRadius: 'var(--wr-card-radius, 16px)',
+        boxShadow: 'var(--wr-card-shadow, 0 4px 16px rgba(60, 64, 67, 0.08), 0 1px 4px rgba(60, 64, 67, 0.05))',
       }}
     >
       <IconQuote
@@ -299,11 +301,13 @@ export function CardCard({ review, settings }: TemplateProps) {
 export function QuoteCard({ review, settings }: TemplateProps) {
   return (
     <div
-      className="relative p-7 h-full flex flex-col items-center text-center overflow-hidden"
+      className="relative h-full flex flex-col items-center text-center overflow-hidden"
       style={{
         background: 'linear-gradient(160deg, #F8F9FA 0%, #FFFFFF 100%)',
         border: `1px solid ${G.border}`,
-        borderRadius: 24,
+        padding: 'var(--wr-card-padding, 28px)',
+        borderRadius: 'var(--wr-card-radius, 24px)',
+        boxShadow: 'var(--wr-card-shadow, none)',
       }}
     >
       <div
@@ -353,12 +357,18 @@ export function GoogleCard({ review, settings }: TemplateProps) {
       style={{
         backgroundColor: '#FFFFFF',
         border: `1px solid ${G.border}`,
-        borderRadius: 12,
+        borderRadius: 'var(--wr-card-radius, 12px)',
+        boxShadow: 'var(--wr-card-shadow, none)',
       }}
     >
       <div
-        className="flex items-center justify-between px-5 py-3"
-        style={{ backgroundColor: G.bg, borderBottom: `1px solid ${G.border}` }}
+        className="flex items-center justify-between py-3"
+        style={{
+          backgroundColor: G.bg,
+          borderBottom: `1px solid ${G.border}`,
+          paddingLeft: 'var(--wr-card-padding, 20px)',
+          paddingRight: 'var(--wr-card-padding, 20px)',
+        }}
       >
         <div className="flex items-center gap-2">
           <GoogleLogo size={18} />
@@ -369,7 +379,7 @@ export function GoogleCard({ review, settings }: TemplateProps) {
         {settings.show_rating !== false && <Stars rating={review.rating} size={14} />}
       </div>
 
-      <div className="p-5 flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col" style={{ padding: 'var(--wr-card-padding, 20px)' }}>
         <div className="flex items-center gap-3 mb-3">
           {settings.show_avatar !== false && <Avatar review={review} size={42} />}
           <div className="min-w-0 flex-1">

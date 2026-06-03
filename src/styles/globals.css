@@ -244,3 +244,54 @@
   height: 2.25rem;
   cursor: pointer;
 }
+
+/* ─── Override WP admin a { color: #2271b1; text-decoration: underline } ─── */
+/* Quand un Button shadcn est rendu via asChild sur un <a>, WP admin force la
+   couleur de lien et le soulignement, écrasant text-primary-foreground.
+   Re-déclaration unlayered par variant pour restaurer le rendu shadcn. */
+#werocket-app a[data-slot="button"],
+[data-slot="dialog-content"] a[data-slot="button"] {
+  text-decoration: none;
+}
+#werocket-app a[data-slot="button"]:hover,
+[data-slot="dialog-content"] a[data-slot="button"]:hover {
+  text-decoration: none;
+}
+#werocket-app [data-slot="button"][data-variant="default"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="default"] {
+  color: var(--primary-foreground);
+}
+#werocket-app [data-slot="button"][data-variant="outline"],
+#werocket-app [data-slot="button"][data-variant="ghost"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="outline"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="ghost"] {
+  color: var(--foreground);
+}
+#werocket-app [data-slot="button"][data-variant="secondary"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="secondary"] {
+  color: var(--secondary-foreground);
+}
+#werocket-app [data-slot="button"][data-variant="destructive"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="destructive"] {
+  color: var(--destructive);
+}
+#werocket-app [data-slot="button"][data-variant="link"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="link"] {
+  color: var(--primary);
+}
+
+/* Liens à l'intérieur de DialogDescription / CardDescription / etc. — laisser
+   le style shadcn s'appliquer (texte primary souligné au hover) plutôt que
+   le bleu WP admin */
+#werocket-app [data-slot="card-description"] a,
+#werocket-app [data-slot="dialog-description"] a,
+[data-slot="dialog-content"] [data-slot="dialog-description"] a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+#werocket-app [data-slot="card-description"] a:hover,
+#werocket-app [data-slot="dialog-description"] a:hover,
+[data-slot="dialog-content"] [data-slot="dialog-description"] a:hover {
+  color: var(--foreground);
+}
