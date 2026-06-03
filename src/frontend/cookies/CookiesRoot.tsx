@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { type CookiesSettings } from '@/lib/types'
 import { CookiesBanner } from './CookiesBanner'
 import { CookiesSettingsDialog } from './CookiesSettingsDialog'
 import { hasConsented } from './klaro-client'
+import { cn } from '@/lib/utils'
 
 interface Props {
   config: CookiesSettings
@@ -23,16 +24,33 @@ export function CookiesRoot({ config }: Props) {
     }
   }, [])
 
-  function handleDismiss() {
-    setBannerVisible(false)
-  }
-
-  function handleConsentSaved() {
-    setBannerVisible(false)
-  }
+  const themeStyle = useMemo<React.CSSProperties | undefined>(() => {
+    if (config.theme !== 'custom') return undefined
+    return {
+      ['--primary' as never]: config.color_primary,
+      ['--primary-foreground' as never]: '#ffffff',
+      ['--background' as never]: config.color_background,
+      ['--card' as never]: config.color_background,
+      ['--popover' as never]: config.color_background,
+      ['--foreground' as never]: config.color_text,
+      ['--card-foreground' as never]: config.color_text,
+      ['--popover-foreground' as never]: config.color_text,
+      ['--muted-foreground' as never]: config.color_text_secondary,
+      ['--border' as never]: config.color_border,
+      ['--input' as never]: config.color_border,
+      ['--ring' as never]: config.color_primary,
+    }
+  }, [config])
 
   return (
-    <>
+    <div
+      className={cn(
+        'werocket-cookies-scope font-sans',
+        config.theme === 'dark' && 'dark',
+        config.additional_class
+      )}
+      style={themeStyle}
+    >
       {bannerVisible && (
         <CookiesBanner
           config={config}
@@ -40,15 +58,15 @@ export function CookiesRoot({ config }: Props) {
             setBannerVisible(false)
             setDialogOpen(true)
           }}
-          onDismiss={handleDismiss}
+          onDismiss={() => setBannerVisible(false)}
         />
       )}
       <CookiesSettingsDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         config={config}
-        onConsentSaved={handleConsentSaved}
+        onConsentSaved={() => setBannerVisible(false)}
       />
-    </>
+    </div>
   )
 }

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { IconCookie, IconSettings, IconX } from '@tabler/icons-react'
+import { cn } from '@/lib/utils'
 import { type CookiesSettings } from '@/lib/types'
 import { getKlaroManager, hasConsented } from './klaro-client'
 
@@ -10,111 +13,152 @@ interface Props {
   onDismiss: () => void
 }
 
+const POSITION_CLASSES: Record<string, string> = {
+  'bottom-left':  'fixed bottom-4 left-4 max-w-md w-[calc(100%-2rem)]',
+  'bottom-right': 'fixed bottom-4 right-4 max-w-md w-[calc(100%-2rem)]',
+  'top-left':     'fixed top-4 left-4 max-w-md w-[calc(100%-2rem)]',
+  'top-right':    'fixed top-4 right-4 max-w-md w-[calc(100%-2rem)]',
+  'center':       'fixed inset-x-4 bottom-4 max-w-3xl mx-auto',
+}
+
+const ANIMATION_CLASSES: Record<string, string> = {
+  'bottom-left':  'animate-in fade-in slide-in-from-bottom-4 duration-500',
+  'bottom-right': 'animate-in fade-in slide-in-from-bottom-4 duration-500',
+  'top-left':     'animate-in fade-in slide-in-from-top-4 duration-500',
+  'top-right':    'animate-in fade-in slide-in-from-top-4 duration-500',
+  'center':       'animate-in fade-in slide-in-from-bottom-4 duration-500',
+}
+
 export function CookiesBanner({ config, onOpenSettings, onDismiss }: Props) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     if (hasConsented(config.cookie_name)) return
     getKlaroManager().then(manager => {
-      if (!manager || manager.confirmed) return
+      if (manager?.confirmed) return
       setTimeout(() => setVisible(true), 400)
     })
   }, [config.cookie_name])
 
   async function acceptAll() {
     const manager = await getKlaroManager()
-    if (manager) manager.saveAndApplyConsents(true)
+    manager?.saveAndApplyConsents(true)
     setVisible(false)
     onDismiss()
   }
 
   async function declineAll() {
     const manager = await getKlaroManager()
-    if (manager) manager.saveAndApplyConsents(false)
+    manager?.saveAndApplyConsents(false)
     setVisible(false)
     onDismiss()
   }
 
-  function openSettings() {
-    onOpenSettings()
-  }
-
   if (!visible) return null
 
-  const positionClasses: Record<string, string> = {
-    'bottom-left':  'bottom-4 left-4 max-w-lg',
-    'bottom-right': 'bottom-4 right-4 max-w-lg',
-    'top-left':     'top-4 left-4 max-w-lg',
-    'top-right':    'top-4 right-4 max-w-lg',
-    'center':       'bottom-0 left-0 right-0',
-  }
-  const posClass = positionClasses[config.position] ?? positionClasses['bottom-left']
-  const isBar = config.position === 'center'
+  const title = config.texts.notice_title || 'Gestion des cookies'
+  const description = config.texts.notice_description || ''
+  const acceptText = config.texts.accept_all || 'Tout accepter'
+  const declineText = config.texts.decline_all || 'Tout refuser'
+  const settingsText = config.texts.settings || 'Paramètres'
+  const privacyText = config.texts.privacy_policy || 'Politique de confidentialité'
+  const privacyUrl = config.texts.privacy_policy_url
 
-  const isDark = config.theme === 'dark'
-  const bg = isDark ? (config.color_background !== '#ffffff' ? config.color_background : '#1a1a2e') : config.color_background
-  const textColor = isDark ? (config.color_text !== '#1f2937' ? config.color_text : '#e2e8f0') : config.color_text
-  const borderColor = config.color_primary
-  const isTop = config.position.startsWith('top')
+  const renderDescription = () =>
+    config.html_texts
+      ? <span dangerouslySetInnerHTML={{ __html: description }} />
+      : description
 
   const buttons = (
-    <>
+    <div className={cn(
+      'flex items-center gap-2 flex-wrap',
+      config.flip_buttons && 'flex-row-reverse'
+    )}>
       {!config.hide_learn_more && (
-        <Button variant="outline" size="sm" onClick={openSettings} className="gap-1.5 text-xs h-8"
-          style={{ borderColor }}>
-          <IconSettings size={13} />
-          {config.texts.settings ?? 'Personnaliser'}
+        <Button variant="outline" onClick={onOpenSettings}>
+          <IconSettings />
+          {settingsText}
         </Button>
       )}
       {!config.hide_decline_all && (
-        <Button variant="ghost" size="sm" onClick={declineAll} className="gap-1.5 text-xs h-8">
-          <IconX size={13} />
-          {config.texts.decline_all ?? 'Tout refuser'}
+        <Button variant="ghost" onClick={declineAll}>
+          <IconX />
+          {declineText}
         </Button>
       )}
-      <Button size="sm" onClick={acceptAll} className="text-xs h-8 text-white"
-        style={{ backgroundColor: config.color_primary }}>
-        {config.texts.accept_all ?? 'Tout accepter'}
+      <Button onClick={acceptAll}>
+        {acceptText}
       </Button>
-    </>
+    </div>
   )
 
+  if (config.notice_as_modal) {
+    return (
+      <Dialog open onOpenChange={open => !open && onDismiss()}>
+        <DialogContent showCloseButton={false} className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <IconCookie className="size-5 text-primary" />
+              {title}
+            </DialogTitle>
+            <DialogDescription className="leading-relaxed">
+              {renderDescription()}
+              {privacyUrl && (
+                <a
+                  href={privacyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-1 underline underline-offset-2 text-primary"
+                >
+                  {privacyText}
+                </a>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            {buttons}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
-    <div
-      className={`fixed ${posClass} z-[9999] shadow-lg rounded-lg`}
-      style={{
-        backgroundColor: bg,
-        color: textColor,
-        borderTop: !isTop && !isBar ? `2px solid ${borderColor}` : undefined,
-        borderBottom: isTop ? `2px solid ${borderColor}` : undefined,
-        padding: isBar ? '12px 16px' : '16px',
-      }}
+    <Card
+      role="dialog"
+      aria-labelledby="werocket-cookies-title"
+      aria-describedby="werocket-cookies-description"
+      className={cn(
+        'z-[9999]',
+        POSITION_CLASSES[config.position] ?? POSITION_CLASSES['bottom-right'],
+        ANIMATION_CLASSES[config.position] ?? ANIMATION_CLASSES['bottom-right']
+      )}
     >
-      <div className={`flex ${isBar ? 'flex-col sm:flex-row items-start sm:items-center justify-between' : 'flex-col'} gap-3`}>
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <IconCookie size={18} className="shrink-0 mt-0.5" style={{ color: config.color_primary }} />
-          <div className="min-w-0">
-            {config.texts.notice_title && (
-              <p className="font-semibold text-sm mb-1">{config.texts.notice_title}</p>
-            )}
-            {config.html_texts ? (
-              <p className="text-xs leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: config.texts.notice_description ?? '' }} />
-            ) : (
-              <p className="text-xs leading-relaxed">{config.texts.notice_description}</p>
-            )}
-            {config.texts.privacy_policy_url && (
-              <a href={config.texts.privacy_policy_url} target="_blank" rel="noopener noreferrer"
-                className="text-xs underline mt-1 inline-block" style={{ color: config.color_primary }}>
-                {config.texts.privacy_policy ?? 'Politique de confidentialité'}
+      <CardHeader>
+        <CardTitle id="werocket-cookies-title" className="flex items-center gap-2">
+          <IconCookie className="size-5 text-primary" />
+          {title}
+        </CardTitle>
+        <CardDescription id="werocket-cookies-description" className="leading-relaxed">
+          {renderDescription()}
+          {privacyUrl && (
+            <>
+              {' '}
+              <a
+                href={privacyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 text-primary hover:opacity-80"
+              >
+                {privacyText}
               </a>
-            )}
-          </div>
-        </div>
-        <div className={`flex items-center gap-2 shrink-0 flex-wrap ${config.flip_buttons ? 'flex-row-reverse' : ''}`}>
-          {buttons}
-        </div>
-      </div>
-    </div>
+            </>
+          )}
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        {buttons}
+      </CardFooter>
+    </Card>
   )
 }
