@@ -438,6 +438,148 @@
   padding-right: 1.5rem !important;
 }
 
+/* Dialog (modale Préférences) : restaure p-6 + gap entre header/body/footer.
+   Critique car le builder applique souvent [role="dialog"] { padding: 0 }
+   ou .modal-content { padding: 0 } qui écrasent shadcn. */
+[data-slot="dialog-content"] {
+  padding: 1.5rem !important;
+  gap: 1.5rem !important;
+  display: grid !important;
+}
+[data-slot="dialog-header"] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.375rem !important;
+  padding: 0 !important;
+}
+[data-slot="dialog-footer"] {
+  display: flex !important;
+  flex-direction: column-reverse !important;
+  gap: 0.5rem !important;
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+@media (min-width: 640px) {
+  [data-slot="dialog-footer"] {
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+  }
+}
+
+/* Accordion : restaure le padding p-4 du trigger et px-4 du content +
+   typo et bg que les builders écrasent (Elementor cible .elementor button) */
+[data-slot="dialog-content"] [data-slot="accordion"],
+.werocket-cookies-scope [data-slot="accordion"] {
+  border: 1px solid var(--border) !important;
+  border-radius: 1rem !important;
+  background-color: transparent !important;
+}
+[data-slot="dialog-content"] [data-slot="accordion-item"],
+.werocket-cookies-scope [data-slot="accordion-item"] {
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+[data-slot="dialog-content"] [data-slot="accordion-item"]:not(:last-child),
+.werocket-cookies-scope [data-slot="accordion-item"]:not(:last-child) {
+  border-bottom: 1px solid var(--border) !important;
+}
+[data-slot="dialog-content"] [data-slot="accordion-trigger"],
+.werocket-cookies-scope [data-slot="accordion-trigger"] {
+  padding: 1rem !important;
+  width: 100% !important;
+  text-align: left !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--foreground) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  line-height: 1.5 !important;
+}
+[data-slot="dialog-content"] [data-slot="accordion-content"],
+.werocket-cookies-scope [data-slot="accordion-content"] {
+  padding: 0 1rem 1rem !important;
+  font-size: 0.875rem !important;
+  color: var(--foreground) !important;
+}
+[data-slot="dialog-content"] [data-slot="accordion-trigger-icon"],
+.werocket-cookies-scope [data-slot="accordion-trigger-icon"] {
+  color: var(--muted-foreground) !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Switch (toggle) : Radix UI primitive — les builders mettent souvent
+   input[type=checkbox] { ... } qui ne nous touche pas, mais certains
+   ciblent [role="switch"] ou .switch */
+[data-slot="dialog-content"] [data-slot="switch"],
+.werocket-cookies-scope [data-slot="switch"] {
+  background-color: var(--input) !important;
+  border: 1px solid transparent !important;
+  border-radius: 9999px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+}
+[data-slot="dialog-content"] [data-slot="switch"][data-state="checked"],
+.werocket-cookies-scope [data-slot="switch"][data-state="checked"] {
+  background-color: var(--primary) !important;
+}
+[data-slot="dialog-content"] [data-slot="switch-thumb"],
+.werocket-cookies-scope [data-slot="switch-thumb"] {
+  background-color: var(--background) !important;
+  border-radius: 9999px !important;
+  pointer-events: none !important;
+  display: block !important;
+}
+
+/* Badge : compteurs 0/2, 0/1, "Requis" */
+[data-slot="dialog-content"] [data-slot="badge"],
+.werocket-cookies-scope [data-slot="badge"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  font-family: inherit !important;
+  font-weight: 400 !important;
+  font-size: 0.75rem !important;
+  line-height: 1 !important;
+  padding: 0.125rem 0.5rem !important;
+  border-radius: 9999px !important;
+  border: 1px solid transparent !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+[data-slot="dialog-content"] [data-slot="badge"][data-variant="secondary"],
+.werocket-cookies-scope [data-slot="badge"][data-variant="secondary"] {
+  background-color: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+}
+[data-slot="dialog-content"] [data-slot="badge"][data-variant="outline"],
+.werocket-cookies-scope [data-slot="badge"][data-variant="outline"] {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Label */
+[data-slot="dialog-content"] [data-slot="label"],
+.werocket-cookies-scope [data-slot="label"] {
+  font-family: inherit !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--foreground) !important;
+  cursor: pointer !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  line-height: 1.5 !important;
+}
+
 /* Radix portals : background popover pour Select / Popover / Dropdown qui
    se montent hors de #werocket-app et perdaient leur fond car le builder
    appliquait des règles globales sur [role="listbox"], [role="menu"] etc. */
