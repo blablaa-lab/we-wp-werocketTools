@@ -91,11 +91,20 @@ export function CompanyInfoSettings() {
   async function onSubmit(data: TCompanyInfo) {
     setSaving(true)
     try {
-      await api.put('/settings/company_info', { settings: data })
+      const resp = await api.put<{ settings: TCompanyInfo }>('/settings/company_info', { settings: data })
       // reset(data) marque la valeur courante comme "propre" (isDirty → false)
       // → l'indicateur "Modifications non enregistrées" disparait, le
       // beforeunload guard se désactive.
-      reset(data, { keepDirty: false })
+      // On utilise la réponse serveur (settings réellement sauvegardés) pour
+      // que le state matche exactement la DB.
+      const saved = resp?.settings ?? data
+      reset(saved, { keepDirty: false })
+      // Si le logo_id a changé, refetch son URL pour mettre à jour la preview
+      if (saved.logo_id && saved.logo_id !== 0) {
+        fetchLogoUrl(saved.logo_id).then(setLogoUrl).catch(() => {})
+      } else {
+        setLogoUrl('')
+      }
       toast.success('Infos société enregistrées')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erreur lors de l\'enregistrement')
@@ -150,7 +159,7 @@ export function CompanyInfoSettings() {
         title: 'Choisir le logo de la société',
         button: { text: 'Utiliser ce logo' },
       })
-      setValue('logo_id', attachment.id, { shouldDirty: true })
+      setValue('logo_id', Number(attachment.id), { shouldDirty: true, shouldValidate: true })
       setLogoUrl(attachment.url)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Impossible d\'ouvrir la médiathèque')
@@ -334,6 +343,14 @@ export function CompanyInfoSettings() {
                 <CardDescription>Utilisé dans les en-têtes et le shortcode <code className="text-[11px] font-mono bg-muted px-1 py-0.5 rounded">[company_logo]</code></CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Champ registered pour que react-hook-form inclue logo_id
+                    dans le payload de submit (sinon setValue seul ne suffit
+                    pas toujours selon la version de RHF). valueAsNumber
+                    garantit qu'on envoie bien un int, pas une string. */}
+                <input
+                  type="hidden"
+                  {...register('logo_id', { valueAsNumber: true })}
+                />
                 <div className="flex items-center gap-4 flex-wrap">
                   <div className="size-24 rounded-2xl border border-border bg-muted/40 flex items-center justify-center overflow-hidden shrink-0">
                     {logoUrl ? (
