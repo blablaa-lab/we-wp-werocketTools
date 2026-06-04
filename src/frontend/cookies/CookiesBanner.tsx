@@ -69,26 +69,32 @@ export function CookiesBanner({ config, onOpenSettings, onDismiss }: Props) {
       ? <span dangerouslySetInnerHTML={{ __html: description }} />
       : description
 
+  const hasSecondaryButtons = !config.hide_learn_more || !config.hide_decline_all
+
   const buttons = (
     <div className={cn(
-      'flex items-center gap-2 flex-wrap',
-      config.flip_buttons && 'flex-row-reverse'
+      'flex flex-col gap-2 w-full',
+      config.flip_buttons && 'flex-col-reverse'
     )}>
-      {!config.hide_learn_more && (
-        <Button variant="outline" onClick={onOpenSettings}>
-          <IconSettings />
-          {settingsText}
-        </Button>
-      )}
-      {!config.hide_decline_all && (
-        <Button variant="ghost" onClick={declineAll}>
-          <IconX />
-          {declineText}
-        </Button>
-      )}
-      <Button onClick={acceptAll}>
+      <Button className="w-full" onClick={acceptAll}>
         {acceptText}
       </Button>
+      {hasSecondaryButtons && (
+        <div className="flex items-center gap-2">
+          {!config.hide_learn_more && (
+            <Button variant="outline" className="flex-1" onClick={onOpenSettings}>
+              <IconSettings className="shrink-0" />
+              {settingsText}
+            </Button>
+          )}
+          {!config.hide_decline_all && (
+            <Button variant="ghost" className="flex-1" onClick={declineAll}>
+              <IconX className="shrink-0" />
+              {declineText}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   )
 
