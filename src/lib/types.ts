@@ -92,6 +92,38 @@ export interface ClickCollectLocation {
   closed_dates: string[]
 }
 
+export interface CompanyInfoSettings {
+  siren: string
+  siret: string
+  name: string
+  commercial_name: string
+  legal_form: string
+  capital: string
+  rcs: string
+  vat: string
+  ape_code: string
+  ape_label: string
+  director: string
+  creation_date: string
+  street: string
+  postal_code: string
+  city: string
+  country: string
+  phone: string
+  email: string
+  website: string
+  logo_id: number
+  legal_mentions: string
+  legal_privacy: string
+  legal_cgv: string
+}
+
+export interface CompanyVariable {
+  key: string
+  label: string
+  group: string
+}
+
 export interface ClickCollectSettings {
   method_title: string
   method_description: string
@@ -196,4 +228,93 @@ export interface CookiesSettings {
   custom_css: string
   callback_on_accept: string
   callback_on_decline: string
+}
+
+// ──────────────────────────────────────────────────────────
+// Cookie Scanner
+// ──────────────────────────────────────────────────────────
+
+export interface ScanStartResponse {
+  id: string
+  token: string
+  urls: string[]
+}
+
+export interface ScannedCookie {
+  name: string
+  domains: string[]
+  value_sample: string
+  first_seen_url: string
+  occurrences: number
+  service_id: string | null
+  service_title: string | null
+  provider: string | null
+  purpose: 'necessary' | 'analytics' | 'marketing' | 'preferences' | null
+  required: boolean
+  classified: boolean
+  is_new: boolean
+  in_settings: boolean
+}
+
+export interface ScannedStorageItem {
+  kind: 'localStorage' | 'sessionStorage'
+  key: string
+  value_sample: string
+  first_seen_url: string
+  service_id: string | null
+  service_title: string | null
+  purpose: string | null
+  classified: boolean
+}
+
+export interface ScannedDomain {
+  domain: string
+  first_seen_url: string
+  service_id: string | null
+  service_title: string | null
+  purpose: string | null
+  classified: boolean
+  cookie_seen: boolean
+}
+
+export interface ScanSummary {
+  urls_scanned: number
+  urls_total: number
+  cookies_total: number
+  cookies_new: number
+  cookies_unknown: number
+  by_purpose: { necessary: number; analytics: number; marketing: number; preferences: number; unclassified: number }
+  services_found: number
+  third_party_domains: number
+}
+
+export interface ScanFinalizeResponse {
+  id: string
+  summary: ScanSummary
+  cookies: ScannedCookie[]
+  storage: ScannedStorageItem[]
+  domains: ScannedDomain[]
+}
+
+export interface ScanHistoryItem {
+  id: string
+  started_at: number
+  completed_at: number | null
+  status: 'running' | 'completed' | 'failed'
+  urls_count: number
+  cookies_count: number
+  new_count: number
+}
+
+export interface ScanImportResponse {
+  imported: string[]
+  updated: string[]
+  skipped: string[]
+}
+
+export interface ScanProgressItem {
+  url: string
+  status: 'pending' | 'visiting' | 'done' | 'error'
+  cookies_found?: number
+  error?: string
 }
