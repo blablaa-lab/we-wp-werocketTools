@@ -5,6 +5,7 @@
 
 namespace WeRocket\Tools\Modules;
 
+use WeRocket\Tools\Modules\ClickCollect\ClickCollectModule;
 use WeRocket\Tools\Modules\Cookies\CookiesModule;
 use WeRocket\Tools\Modules\GoogleReviews\GoogleReviewsModule;
 use WeRocket\Tools\Modules\Retractation\RetractationModule;
@@ -21,6 +22,7 @@ class ModuleManager {
         $this->register(new CookiesModule());
         $this->register(new GoogleReviewsModule());
         $this->register(new RetractationModule());
+        $this->register(new ClickCollectModule());
 
         // Allow third-party modules registration
         do_action('werocket_tools_register_modules', $this);

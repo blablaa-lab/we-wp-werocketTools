@@ -66,6 +66,55 @@ export interface ReviewsSettings {
   carousel_show_dots: boolean
 }
 
+export type DayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+
+export interface CCTimeSlot {
+  start: string
+  end: string
+}
+
+export interface CCDaySchedule {
+  enabled: boolean
+  slots: CCTimeSlot[]
+}
+
+export type CCSchedule = Record<DayKey, CCDaySchedule>
+
+export interface ClickCollectLocation {
+  id: string
+  name: string
+  address: string
+  phone: string
+  email: string
+  enabled: boolean
+  cost: number
+  schedule: CCSchedule
+  closed_dates: string[]
+}
+
+export interface ClickCollectSettings {
+  method_title: string
+  method_description: string
+  cost: number
+  tax_status: 'none' | 'taxable'
+  enable_lead_time: boolean
+  min_lead_time_hours: number
+  max_days_ahead: number
+  require_time_slot: boolean
+  slot_interval_minutes: number
+  block_unavailable: boolean
+  show_in_cart: boolean
+  show_in_order: boolean
+  show_in_emails: boolean
+  instructions: string
+  accent_color: string
+  accent_text_color: string
+  panel_bg_color: string
+  panel_border_color: string
+  text_color: string
+  locations: ClickCollectLocation[]
+}
+
 export interface RetractationSettings {
   page_title: string
   endpoint_slug: string

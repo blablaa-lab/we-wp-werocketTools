@@ -4,6 +4,7 @@ export const MODULE_CATEGORIES: Record<string, ModuleCategory> = {
   cookies: 'wordpress',
   google_reviews: 'wordpress',
   retractation: 'woocommerce',
+  click_collect: 'woocommerce',
 }
 
 export function getModuleCategory(id: string): ModuleCategory {
