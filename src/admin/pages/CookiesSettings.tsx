@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
 import { useRegisterSaveForm } from '../context/SaveContext'
 import { CookiesPreview } from '../components/CookiesPreview'
+import { CookieScannerCard } from '../components/cookies/CookieScannerCard'
 import type { CookiesSettings, CookieService } from '@/lib/types'
 
 const FORM_ID = 'wr-form-cookies'
@@ -60,15 +61,16 @@ export function CookiesSettings() {
 
   const { register, handleSubmit, setValue, watch, reset } = useForm<FormValues>()
 
-  useEffect(() => {
-    api.get<{ settings: CookiesSettings }>('/settings/cookies')
-      .then(data => {
-        const { services: svc, ...rest } = data.settings
-        reset(rest as FormValues)
-        setServices((svc ?? []).map(s => ({ ...s, _cookies_csv: s.cookies.join(', ') })))
-      })
-      .finally(() => setLoading(false))
+  const loadSettings = useCallback(async () => {
+    const data = await api.get<{ settings: CookiesSettings }>('/settings/cookies')
+    const { services: svc, ...rest } = data.settings
+    reset(rest as FormValues)
+    setServices((svc ?? []).map(s => ({ ...s, _cookies_csv: s.cookies.join(', ') })))
   }, [reset])
+
+  useEffect(() => {
+    void loadSettings().finally(() => setLoading(false))
+  }, [loadSettings])
 
   function updateService(index: number, field: keyof ServiceWithCsv, value: unknown) {
     setServices(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s))
@@ -344,7 +346,14 @@ export function CookiesSettings() {
         </TabsContent>
 
         {/* ─── Services ─── */}
-        <TabsContent value="services">
+        <TabsContent value="services" className="space-y-4">
+          <CookieScannerCard
+            cookieName={watch('cookie_name') || 'werocket_consent'}
+            storageMethod={(watch('storage_method') ?? 'cookie') as 'cookie' | 'localStorage'}
+            services={services}
+            onServicesImported={() => { void loadSettings() }}
+          />
+
           <Card>
             <CardHeader>
               <CardTitle className="font-bold">Services de tracking</CardTitle>

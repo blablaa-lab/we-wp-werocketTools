@@ -6,6 +6,9 @@
 namespace WeRocket\Tools\Admin;
 
 use WeRocket\Tools\Modules\ModuleManager;
+use WeRocket\Tools\Modules\Cookies\CookiesModule;
+use WeRocket\Tools\Modules\Cookies\Scanner\CookieScanner;
+use WeRocket\Tools\Modules\Cookies\Scanner\ScanStorage;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -83,6 +86,54 @@ class RestApi {
             'permission_callback' => [$this, 'require_admin'],
         ]);
 
+        // ──────────────────────────────────────────────────────────
+        // Cookie Scanner endpoints
+        // ──────────────────────────────────────────────────────────
+
+        // POST /cookies/scan/start
+        register_rest_route($namespace, '/cookies/scan/start', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'cookies_scan_start'],
+            'permission_callback' => [$this, 'require_admin'],
+        ]);
+
+        // POST /cookies/scan/report
+        register_rest_route($namespace, '/cookies/scan/report', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'cookies_scan_report'],
+            'permission_callback' => [$this, 'require_admin'],
+        ]);
+
+        // POST /cookies/scan/finalize
+        register_rest_route($namespace, '/cookies/scan/finalize', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'cookies_scan_finalize'],
+            'permission_callback' => [$this, 'require_admin'],
+        ]);
+
+        // GET /cookies/scan/history
+        register_rest_route($namespace, '/cookies/scan/history', [
+            'methods'             => 'GET',
+            'callback'            => [$this, 'cookies_scan_history'],
+            'permission_callback' => [$this, 'require_admin'],
+        ]);
+
+        // POST /cookies/scan/import
+        register_rest_route($namespace, '/cookies/scan/import', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'cookies_scan_import'],
+            'permission_callback' => [$this, 'require_admin'],
+        ]);
+
+        // DELETE /cookies/scan/{id}
+        register_rest_route($namespace, '/cookies/scan/(?P<id>scan_[a-z0-9-]+)', [
+            'methods'             => 'DELETE',
+            'callback'            => [$this, 'cookies_scan_delete'],
+            'permission_callback' => [$this, 'require_admin'],
+            'args'                => [
+                'id' => ['sanitize_callback' => fn($v) => preg_replace('/[^a-z0-9_-]/', '', (string)$v)],
+            ],
+        ]);
     }
 
     public function require_admin(): bool|WP_Error {
@@ -207,4 +258,122 @@ class RestApi {
         ]);
     }
 
+    // ──────────────────────────────────────────────────────────
+    // Cookie Scanner
+    // ──────────────────────────────────────────────────────────
+
+    private ?CookieScanner $scanner = null;
+
+    private function get_scanner(): CookieScanner|WP_Error {
+        if ($this->scanner !== null) return $this->scanner;
+
+        $module = $this->module_manager->get_module('cookies');
+        if (!$module instanceof CookiesModule) {
+            return new WP_Error('cookies_module_unavailable', __('Module Cookies indisponible.', 'werocket-tools'), ['status' => 500]);
+        }
+
+        return $this->scanner = new CookieScanner(new ScanStorage(), $module);
+    }
+
+    public function cookies_scan_start(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $scanner = $this->get_scanner();
+        if ($scanner instanceof WP_Error) return $scanner;
+
+        $body = $request->get_json_params() ?: [];
+        $urls = is_array($body['urls'] ?? null) ? $body['urls'] : [];
+
+        $result = $scanner->start($urls);
+        if ($result instanceof WP_Error) return $result;
+
+        return rest_ensure_response($result);
+    }
+
+    public function cookies_scan_report(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $scanner = $this->get_scanner();
+        if ($scanner instanceof WP_Error) return $scanner;
+
+        $body     = $request->get_json_params() ?: [];
+        $scan_id  = sanitize_text_field((string) ($body['scan_id'] ?? ''));
+        $token    = sanitize_text_field((string) ($body['token']   ?? ''));
+        $url      = (string) ($body['url'] ?? '');
+
+        if ($scan_id === '' || $token === '' || $url === '') {
+            return new WP_Error('missing_params', __('Paramètres manquants.', 'werocket-tools'), ['status' => 400]);
+        }
+
+        $result = $scanner->record($scan_id, $token, $url, [
+            'cookies'        => is_array($body['cookies']        ?? null) ? $body['cookies']        : [],
+            'localStorage'   => is_array($body['localStorage']   ?? null) ? $body['localStorage']   : [],
+            'sessionStorage' => is_array($body['sessionStorage'] ?? null) ? $body['sessionStorage'] : [],
+            'resources'      => is_array($body['resources']      ?? null) ? $body['resources']      : [],
+        ]);
+
+        if ($result instanceof WP_Error) return $result;
+        return rest_ensure_response($result);
+    }
+
+    public function cookies_scan_finalize(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $scanner = $this->get_scanner();
+        if ($scanner instanceof WP_Error) return $scanner;
+
+        $body    = $request->get_json_params() ?: [];
+        $scan_id = sanitize_text_field((string) ($body['scan_id'] ?? ''));
+        $token   = sanitize_text_field((string) ($body['token']   ?? ''));
+
+        if ($scan_id === '' || $token === '') {
+            return new WP_Error('missing_params', __('Paramètres manquants.', 'werocket-tools'), ['status' => 400]);
+        }
+
+        $result = $scanner->finalize($scan_id, $token);
+        if ($result instanceof WP_Error) return $result;
+
+        return rest_ensure_response($result);
+    }
+
+    public function cookies_scan_history(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $this->get_scanner(); // ensures cookies module exists
+        $storage = new ScanStorage();
+
+        $id = sanitize_text_field((string) $request->get_param('id'));
+        if ($id !== '') {
+            $scan = $storage->get($id);
+            if (!$scan) {
+                return new WP_Error('scan_not_found', __('Scan introuvable.', 'werocket-tools'), ['status' => 404]);
+            }
+            // Never leak the token to the front-end via history reads.
+            unset($scan['token']);
+            return rest_ensure_response(['scan' => $scan]);
+        }
+
+        return rest_ensure_response([
+            'scans' => $storage->get_all_lite(),
+        ]);
+    }
+
+    public function cookies_scan_import(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $scanner = $this->get_scanner();
+        if ($scanner instanceof WP_Error) return $scanner;
+
+        $body = $request->get_json_params() ?: [];
+        $ids  = is_array($body['service_ids'] ?? null) ? $body['service_ids'] : [];
+
+        $result = $scanner->import_services($ids);
+        if ($result instanceof WP_Error) return $result;
+
+        return rest_ensure_response($result);
+    }
+
+    public function cookies_scan_delete(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $id = (string) $request->get_param('id');
+        if ($id === '') {
+            return new WP_Error('missing_id', __('ID manquant.', 'werocket-tools'), ['status' => 400]);
+        }
+
+        $storage = new ScanStorage();
+        if (!$storage->delete($id)) {
+            return new WP_Error('scan_not_found', __('Scan introuvable.', 'werocket-tools'), ['status' => 404]);
+        }
+
+        return rest_ensure_response(['deleted' => $id]);
+    }
 }

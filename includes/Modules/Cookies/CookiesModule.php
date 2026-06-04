@@ -9,6 +9,7 @@ namespace WeRocket\Tools\Modules\Cookies;
 
 use WeRocket\Tools\Admin\ViteAssets;
 use WeRocket\Tools\Modules\AbstractModule;
+use WeRocket\Tools\Modules\Cookies\Scanner\ScanCron;
 
 class CookiesModule extends AbstractModule {
 
@@ -28,6 +29,8 @@ class CookiesModule extends AbstractModule {
 
         add_shortcode('werocket_cookie_settings', [$this, 'render_cookie_settings_shortcode']);
         add_shortcode('werocket_manage_cookies', [$this, 'render_cookie_settings_shortcode']);
+
+        ScanCron::register_hooks();
     }
 
     /**
@@ -130,6 +133,56 @@ class CookiesModule extends AbstractModule {
         // Rendu délégué au SPA React via #werocket-admin-root
     }
 
+    /**
+     * Override: ensure essential services (WordPress core, this plugin's own
+     * consent cookie) always exist in the services list even on legacy installs
+     * whose saved option pre-dates them. We only inject services whose `name`
+     * isn't already present — admins can still customize or disable them.
+     */
+    public function get_settings(): array {
+        $settings = parent::get_settings();
+        $settings['services'] = $this->ensure_essential_services($settings['services'] ?? []);
+        return $settings;
+    }
+
+    /**
+     * Essential service names that must exist on any install. Matched against
+     * services in get_default_settings() — those are the source of truth.
+     */
+    private const ESSENTIAL_SERVICE_NAMES = ['wordpress-core', 'werocket-consent'];
+
+    /**
+     * Inject missing essential services at the top of the list. Existing entries
+     * (same `name`) are left untouched so admin customizations are preserved.
+     */
+    private function ensure_essential_services(array $services): array {
+        $present = [];
+        foreach ($services as $s) {
+            if (is_array($s) && !empty($s['name'])) {
+                $present[$s['name']] = true;
+            }
+        }
+
+        $essentials_from_defaults = [];
+        foreach ($this->get_default_settings()['services'] as $def) {
+            if (in_array($def['name'] ?? '', self::ESSENTIAL_SERVICE_NAMES, true)) {
+                $essentials_from_defaults[$def['name']] = $def;
+            }
+        }
+
+        $missing = [];
+        foreach (self::ESSENTIAL_SERVICE_NAMES as $name) {
+            if (!isset($present[$name]) && isset($essentials_from_defaults[$name])) {
+                $missing[] = $essentials_from_defaults[$name];
+            }
+        }
+
+        if (empty($missing)) return $services;
+
+        // Prepend essentials so they appear first in the modal.
+        return array_merge($missing, $services);
+    }
+
     protected function get_default_settings(): array {
         return [
             // General settings
@@ -201,7 +254,34 @@ class CookiesModule extends AbstractModule {
             'gcm_region' => '', // Empty = all regions, or comma-separated: FR,BE,DE
 
             // Services/Apps
+            // The first two services are "essential" and are also enforced at runtime
+            // by ensure_essential_services() so they appear on legacy installs whose
+            // settings were saved before they existed in the defaults.
             'services' => [
+                [
+                    'name' => 'wordpress-core',
+                    'title' => 'WordPress',
+                    'description' => "Cookies essentiels de WordPress : session admin, préférences de l'interface, cookie de test. Strictement nécessaires au fonctionnement du site.",
+                    'purposes' => ['necessary'],
+                    'cookies' => ['wordpress_*', 'wp-settings-*', 'wp-settings-time-*', 'wordpress_logged_in_*', 'wordpress_test_cookie', 'wordpress_sec_*', 'comment_author_*', 'comment_author_email_*', 'comment_author_url_*', 'wp_lang'],
+                    'required' => true,
+                    'default' => true,
+                    'opt_out' => false,
+                    'only_once' => false,
+                    'enabled' => true,
+                ],
+                [
+                    'name' => 'werocket-consent',
+                    'title' => 'Préférences de consentement',
+                    'description' => 'Cookie enregistrant votre choix de consentement aux cookies. Sans ce cookie, le bandeau s\'afficherait à chaque visite.',
+                    'purposes' => ['necessary'],
+                    'cookies' => ['werocket_consent', 'klaro'],
+                    'required' => true,
+                    'default' => true,
+                    'opt_out' => false,
+                    'only_once' => false,
+                    'enabled' => true,
+                ],
                 [
                     'name' => 'google-analytics',
                     'title' => 'Google Analytics',
