@@ -1,7 +1,21 @@
+import { toast } from 'sonner'
+
 function getBootstrap() {
   const el = document.getElementById('werocket-admin-root')
   if (!el) throw new Error('werocket-admin-root not found')
   return el.dataset as { restUrl: string; nonce: string; pluginUrl: string; version: string }
+}
+
+// Évite les reloads en boucle si plusieurs requêtes échouent en parallèle.
+let reloadingForStaleNonce = false
+
+function handleStaleNonce(): never {
+  if (!reloadingForStaleNonce) {
+    reloadingForStaleNonce = true
+    toast.error('Session expirée, rechargement…')
+    setTimeout(() => window.location.reload(), 800)
+  }
+  throw new Error('Session expirée')
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -16,6 +30,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
+    // Nonce périmé (session morte côté serveur) : on recharge pour
+    // récupérer un data-nonce frais plutôt que de laisser l'UI échouer
+    // silencieusement avec un toast d'erreur générique.
+    if (res.status === 403 && err?.code === 'rest_cookie_invalid_nonce') {
+      handleStaleNonce()
+    }
     throw new Error(err?.message ?? `HTTP ${res.status}`)
   }
   return res.json()
