@@ -203,14 +203,34 @@ class RestApi {
         $body = $request->get_json_params();
         $data = $body['settings'] ?? [];
 
-        if ($module->save_settings($data)) {
+        // Wrap dans try/catch pour capturer toute exception fatale (ex: un
+        // plugin tiers qui filtre update_option, un wp_kses qui bug, un
+        // override CPT qui crashe). Sans ce wrapper, PHP renvoie un 500
+        // opaque — avec, l'admin reçoit le détail dans la réponse JSON.
+        try {
+            $saved = $module->save_settings($data);
+        } catch (\Throwable $e) {
+            $message = sprintf(
+                'Exception PHP pendant le save : %s @ %s:%d',
+                $e->getMessage(),
+                basename($e->getFile()),
+                $e->getLine()
+            );
+            error_log('[WeRocketTools] ' . $message . "\n" . $e->getTraceAsString());
+            return new WP_Error('save_exception', $message, [
+                'status' => 500,
+                'trace'  => WP_DEBUG ? $e->getTraceAsString() : null,
+            ]);
+        }
+
+        if ($saved) {
             return rest_ensure_response([
                 'settings' => $module->get_settings(),
                 'message'  => __('Paramètres enregistrés', 'werocket-tools'),
             ]);
         }
 
-        return new WP_Error('save_failed', __('Erreur lors de l\'enregistrement', 'werocket-tools'), ['status' => 500]);
+        return new WP_Error('save_failed', __('Erreur lors de l\'enregistrement (save_settings a renvoyé false)', 'werocket-tools'), ['status' => 500]);
     }
 
     public function get_reviews(WP_REST_Request $request): WP_REST_Response {

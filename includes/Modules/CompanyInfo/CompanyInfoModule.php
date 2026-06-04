@@ -43,15 +43,35 @@ class CompanyInfoModule extends AbstractModule {
      * supprimé, conflit de slug, etc.) est loggée puis ignorée.
      */
     public function save_settings(array $data): bool {
-        $result = parent::save_settings($data);
+        // Log la taille du payload pour debug en prod
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf(
+                '[WeRocketTools] company_info save : %d keys, %d bytes payload',
+                count($data),
+                strlen((string) wp_json_encode($data))
+            ));
+        }
+
+        try {
+            $result = parent::save_settings($data);
+        } catch (\Throwable $e) {
+            error_log(
+                '[WeRocketTools] parent::save_settings threw : '
+                . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine()
+            );
+            throw $e; // remonte au handler REST qui le formate en JSON
+        }
+
         if ($result) {
             try {
                 Cpt::sync_from_settings($this->get_settings());
             } catch (\Throwable $e) {
                 error_log(
                     '[WeRocketTools] CPT sync failed during company_info save : '
-                    . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine()
+                    . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine()
                 );
+                // Pas de re-throw : le save principal a réussi, le CPT
+                // pourra être re-synchronisé au prochain save.
             }
         }
         return $result;
@@ -116,12 +136,28 @@ class CompanyInfoModule extends AbstractModule {
             'website'         => esc_url_raw((string) ($data['website'] ?? '')),
             'logo_id'         => absint($data['logo_id'] ?? 0),
 
-            'legal_mentions'  => wp_kses_post((string) ($data['legal_mentions'] ?? $current['legal_mentions'])),
-            'legal_privacy'   => wp_kses_post((string) ($data['legal_privacy'] ?? $current['legal_privacy'])),
-            'legal_cgv'       => wp_kses_post((string) ($data['legal_cgv'] ?? $current['legal_cgv'])),
+            'legal_mentions'  => $this->safe_kses($data['legal_mentions'] ?? $current['legal_mentions'] ?? ''),
+            'legal_privacy'   => $this->safe_kses($data['legal_privacy']  ?? $current['legal_privacy']  ?? ''),
+            'legal_cgv'       => $this->safe_kses($data['legal_cgv']      ?? $current['legal_cgv']      ?? ''),
         ];
 
         return $sanitized;
+    }
+
+    /**
+     * Wrapper wp_kses_post tolérant : si la fonction throw (très rare mais
+     * possible sur certains environnements avec mod_security ou un kses
+     * patché par un plugin tiers), on tombe sur strip_tags en fallback
+     * plutôt que de faire planter tout le save.
+     */
+    private function safe_kses(mixed $value): string {
+        $value = is_scalar($value) ? (string) $value : '';
+        try {
+            return wp_kses_post($value);
+        } catch (\Throwable $e) {
+            error_log('[WeRocketTools] wp_kses_post failed, fallback strip_tags : ' . $e->getMessage());
+            return strip_tags($value, '<p><br><h1><h2><h3><h4><strong><em><u><s><a><ul><ol><li><blockquote><code><pre><hr>');
+        }
     }
 
     private function sanitize_digits(string $value, int $expected_length): string {
