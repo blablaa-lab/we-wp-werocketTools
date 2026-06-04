@@ -3,7 +3,7 @@
  * Plugin Name: WeRocket Tools
  * Plugin URI: https://werocket.fr
  * Description: Suite d'outils pour agences : gestion des cookies, avis Google, informations entreprise Google Business.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: WeRocket
  * Author URI: https://werocket.fr
  * License: GPL v2 or later
@@ -22,13 +22,13 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('WEROCKET_TOOLS_VERSION', '1.1.0');
+define('WEROCKET_TOOLS_VERSION', '1.1.1');
 define('WEROCKET_TOOLS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WEROCKET_TOOLS_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WEROCKET_TOOLS_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('WEROCKET_TOOLS_DIST_URL', plugin_dir_url(__FILE__) . 'dist/');
 
-// Auto-update depuis GitHub via Plugin Update Checker v5
+// Auto-update depuis GitHub via Plugin Update Checker v5 (repo public, pas d'auth).
 require_once WEROCKET_TOOLS_PLUGIN_DIR . 'includes/plugin-update-checker/plugin-update-checker.php';
 $werocket_updater = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
     'https://github.com/blablaa-lab/we-wp-werocketTools/',
@@ -36,9 +36,6 @@ $werocket_updater = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateC
     'werocket-tools'
 );
 $werocket_updater->getVcsApi()->enableReleaseAssets();
-if (defined('WEROCKET_TOOLS_GH_TOKEN') && WEROCKET_TOOLS_GH_TOKEN) {
-    $werocket_updater->setAuthentication(WEROCKET_TOOLS_GH_TOKEN);
-}
 
 // Autoloader
 require_once WEROCKET_TOOLS_PLUGIN_DIR . 'includes/Autoloader.php';
