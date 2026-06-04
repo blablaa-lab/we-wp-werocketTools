@@ -9,6 +9,7 @@ import { CookiesSettings } from './pages/CookiesSettings'
 import { ReviewsSettings } from './pages/ReviewsSettings'
 import { RetractationSettings } from './pages/RetractationSettings'
 import { ClickCollectSettings } from './pages/ClickCollectSettings'
+import { CompanyInfoSettings } from './pages/CompanyInfoSettings'
 import { api } from '@/lib/api'
 import type { Module } from '@/lib/types'
 import { IconLoader2 } from '@tabler/icons-react'
@@ -65,6 +66,7 @@ export function App() {
             {tab === 'google_reviews' && <ReviewsSettings />}
             {tab === 'retractation' && <RetractationSettings />}
             {tab === 'click_collect' && <ClickCollectSettings />}
+            {tab === 'company_info' && <CompanyInfoSettings />}
           </div>
         )}
 
