@@ -6,9 +6,18 @@
 @custom-variant dark (&:is(.dark *));
 @config "../../tailwind.config.js";
 
-/* ─── Variables du thème (preset b1GwVdBaa — teal/neutral) ─── */
+/* ─── Variables du thème (preset b1GwVdBaa — teal/neutral) ───
+   Scopées sur les conteneurs du plugin uniquement (jamais :root)
+   pour éviter les conflits avec les variables CSS des thèmes clients.
+   Les portals Radix UI (dialog, popover) reçoivent aussi les variables
+   car ils se montent directement sous <body> via createPortal.
+   ─── */
 @layer base {
-  :root {
+  #werocket-app,
+  .werocket-cookies-scope,
+  .werocket-reviews-mount,
+  [data-slot="dialog-content"],
+  [data-radix-popper-content-wrapper] {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -43,7 +52,11 @@
     --sidebar-ring: oklch(0.708 0 0);
   }
 
-  .dark {
+  #werocket-app.dark,
+  .werocket-cookies-scope.dark,
+  .werocket-reviews-mount.dark,
+  [data-slot="dialog-content"].dark,
+  [data-radix-popper-content-wrapper].dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
