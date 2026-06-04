@@ -85,9 +85,30 @@ abstract class AbstractModule implements ModuleInterface {
         // déjà polluées par les saves précédents (avant ce fix).
         $data = $this->deep_unslash($data);
         $sanitized = $this->sanitize_settings($data);
-        $result = update_option($this->option_key, $sanitized);
-        // Invalidate the per-request cache so the next read returns fresh data.
+
+        // Bug WordPress historique : update_option() retourne FALSE lorsque
+        // la nouvelle valeur est identique à l'ancienne (= "rien à changer").
+        // Ce n'est PAS une erreur. On compare manuellement avant l'appel pour
+        // distinguer ce cas du vrai échec d'écriture en DB.
+        $current = get_option($this->option_key, null);
+
+        if ($current === $sanitized) {
+            // Pas de changement = succès trivial. On invalide quand même le
+            // cache au cas où il aurait été modifié par un autre code path.
+            $this->settings_cache = null;
+            return true;
+        }
+
+        $result = (bool) update_option($this->option_key, $sanitized);
         $this->settings_cache = null;
+
+        // Edge case : si update_option a renvoyé false mais que la valeur
+        // est désormais bien en DB (ex: passé par un hook update_option_*),
+        // on considère le save comme réussi.
+        if (!$result && get_option($this->option_key, null) === $sanitized) {
+            return true;
+        }
+
         return $result;
     }
 
