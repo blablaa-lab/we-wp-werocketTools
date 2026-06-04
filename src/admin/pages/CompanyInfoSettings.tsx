@@ -30,8 +30,7 @@ export function CompanyInfoSettings() {
   const [logoUrl, setLogoUrl] = useState('')
   const [lookupValue, setLookupValue] = useState('')
   const [lookingUp, setLookingUp] = useState(false)
-  const { setSaving } = useRegisterSaveForm(FORM_ID)
-  const { register, handleSubmit, setValue, reset, control } = useForm<TCompanyInfo>({
+  const { register, handleSubmit, setValue, reset, control, formState } = useForm<TCompanyInfo>({
     defaultValues: {
       siren: '', siret: '', name: '', commercial_name: '', legal_form: '',
       capital: '', rcs: '', vat: '', ape_code: '', ape_label: '',
@@ -41,6 +40,19 @@ export function CompanyInfoSettings() {
       legal_mentions: '', legal_privacy: '', legal_cgv: '',
     },
   })
+
+  const { setSaving } = useRegisterSaveForm(FORM_ID, formState.isDirty)
+
+  // Beforeunload : alerte si on quitte avec des modifs non sauvées
+  useEffect(() => {
+    if (!formState.isDirty) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [formState.isDirty])
 
   useEffect(() => {
     // Settings : essentiel. Variables : nice-to-have (peut échouer si module
@@ -80,6 +92,10 @@ export function CompanyInfoSettings() {
     setSaving(true)
     try {
       await api.put('/settings/company_info', { settings: data })
+      // reset(data) marque la valeur courante comme "propre" (isDirty → false)
+      // → l'indicateur "Modifications non enregistrées" disparait, le
+      // beforeunload guard se désactive.
+      reset(data, { keepDirty: false })
       toast.success('Infos société enregistrées')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erreur lors de l\'enregistrement')
@@ -87,6 +103,19 @@ export function CompanyInfoSettings() {
       setSaving(false)
     }
   }
+
+  // Raccourci ⌘/Ctrl + S → submit
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault()
+        const form = document.getElementById(FORM_ID) as HTMLFormElement | null
+        form?.requestSubmit()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   async function handleLookup() {
     const identifier = lookupValue.replace(/\D/g, '')
