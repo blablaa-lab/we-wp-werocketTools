@@ -27,7 +27,8 @@ Desktop.ini
 node_modules/
 vendor/
 composer.lock
-package-lock.json
+# Note : package-lock.json est commité pour permettre npm ci en CI
+# (reproductibilité des builds + cache npm fonctionnel)
 
 # Build & Compilation (généré par le workflow CI, non commité)
 /dist/
