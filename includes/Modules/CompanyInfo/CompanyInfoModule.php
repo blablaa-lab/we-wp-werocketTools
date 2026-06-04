@@ -120,6 +120,11 @@ class CompanyInfoModule extends AbstractModule {
             ['key' => 'company.email',           'label' => 'Email',                   'group' => 'Coordonnées'],
             ['key' => 'company.website',         'label' => 'Site web',                'group' => 'Coordonnées'],
             ['key' => 'company.logo',            'label' => 'Logo (URL)',              'group' => 'Coordonnées'],
+
+            ['key' => 'site.name',               'label' => 'Nom du site',             'group' => 'Site WordPress'],
+            ['key' => 'site.url',                'label' => 'URL du site',             'group' => 'Site WordPress'],
+            ['key' => 'site.tagline',            'label' => 'Slogan du site',          'group' => 'Site WordPress'],
+            ['key' => 'site.admin_email',        'label' => 'Email admin',             'group' => 'Site WordPress'],
         ];
     }
 

@@ -49,10 +49,19 @@ class Shortcodes {
      */
     public function render_field($atts): string {
         $atts = shortcode_atts(['field' => 'name'], (array) $atts, 'company_info');
-        $rendered = $this->resolver->render('{company.' . sanitize_key($atts['field']) . '}');
+        $field = sanitize_text_field($atts['field']);
+
+        // Permet field="site.name" ou field="name" (par défaut namespace "company")
+        if (str_contains($field, '.')) {
+            $key = $field;
+        } else {
+            $key = 'company.' . sanitize_key($field);
+        }
+
+        $rendered = $this->resolver->render('{' . $key . '}');
 
         // Si non résolu (variable inconnue), retourne vide plutôt que la variable littérale.
-        if (str_starts_with($rendered, '{company.')) return '';
+        if (str_starts_with($rendered, '{')) return '';
 
         return esc_html($rendered);
     }

@@ -14,20 +14,40 @@ class VariableResolver {
     }
 
     /**
-     * Remplace toutes les variables {company.x} par leur valeur depuis les settings.
+     * Remplace les variables {company.x} et {site.x} par leur valeur.
+     * - company.* : depuis les settings du module
+     * - site.*    : depuis WordPress (get_bloginfo / get_option)
      */
     public function render(string $content): string {
         $settings = $this->module->get_settings();
-        $values   = $this->build_values($settings);
+        $company  = $this->build_values($settings);
+        $site     = $this->build_site_values();
 
         return preg_replace_callback(
-            '/\{company\.([a-z_]+)\}/i',
-            function ($matches) use ($values) {
-                $key = strtolower($matches[1]);
-                return $values[$key] ?? $matches[0];
+            '/\{(company|site)\.([a-z_]+)\}/i',
+            function ($matches) use ($company, $site) {
+                $namespace = strtolower($matches[1]);
+                $key       = strtolower($matches[2]);
+                if ($namespace === 'site') {
+                    return $site[$key] ?? $matches[0];
+                }
+                return $company[$key] ?? $matches[0];
             },
             $content
         ) ?? $content;
+    }
+
+    /**
+     * Variables {site.x} récupérées depuis WordPress (pas depuis le module).
+     * @return array<string,string>
+     */
+    private function build_site_values(): array {
+        return [
+            'name'        => (string) get_bloginfo('name'),
+            'url'         => (string) home_url('/'),
+            'tagline'     => (string) get_bloginfo('description'),
+            'admin_email' => (string) get_bloginfo('admin_email'),
+        ];
     }
 
     /**

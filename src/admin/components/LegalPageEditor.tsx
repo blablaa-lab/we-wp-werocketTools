@@ -36,15 +36,24 @@ export function LegalPageEditor({
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
   const [variablesOpen, setVariablesOpen] = useState(false)
 
-  // Fermer le menu contextuel au clic ailleurs
+  // Fermer le menu contextuel au clic OU à la touche Escape — pas au scroll
+  // (sinon scroller dans le menu lui-même le fait disparaître).
   useEffect(() => {
     if (!contextMenu) return
-    const close = () => setContextMenu(null)
-    document.addEventListener('click', close)
-    document.addEventListener('scroll', close, true)
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as Element | null
+      // Si le clic est à l'intérieur du menu, on ignore (laisse le button onClick agir)
+      if (target?.closest('[data-werocket-context-menu]')) return
+      setContextMenu(null)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setContextMenu(null)
+    }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
     return () => {
-      document.removeEventListener('click', close)
-      document.removeEventListener('scroll', close, true)
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
     }
   }, [contextMenu])
 
@@ -125,14 +134,15 @@ export function LegalPageEditor({
       {contextMenu && (
         <div
           role="menu"
+          data-werocket-context-menu
           className={cn(
-            'fixed z-[10000] min-w-56 max-h-96 overflow-y-auto rounded-2xl border border-border bg-popover',
+            'fixed z-[10000] w-64 max-h-[420px] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-popover',
             'p-1 shadow-xl ring-1 ring-foreground/5'
           )}
           style={{ left: contextMenu.x, top: contextMenu.y }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <div className="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground sticky top-0 bg-popover">
             Insérer une variable
           </div>
           <VariableList grouped={groupedVariables} onPick={handleInsertVariable} compact />
