@@ -326,3 +326,189 @@
 [data-slot="dialog-content"] [data-slot="dialog-description"] a:hover {
   color: var(--foreground);
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   BOUCLIER ANTI-BUILDERS (Elementor, Divi, Bricks, Oxygen, WPBakery…)
+   ────────────────────────────────────────────────────────────────────────
+   Les builders appliquent des règles CSS très spécifiques et !important
+   sur p, h*, a, button, etc. qui écrasent nos utilities Tailwind dans le
+   bandeau cookies front + portals Radix (dialog, popover). Ce bloc force
+   les couleurs, font et resets avec une spécificité suffisante.
+
+   Stratégie : !important utilisé sciemment pour protéger l'isolation
+   visuelle du plugin. Les overrides utilisateurs passent par les CSS
+   variables (--primary, etc.) appliquées sur le wrapper de scope.
+   ──────────────────────────────────────────────────────────────────── */
+
+/* Reset de base sur les conteneurs */
+.werocket-cookies-scope,
+[data-slot="dialog-overlay"],
+[data-slot="dialog-content"],
+[data-radix-popper-content-wrapper] [data-slot="popover-content"] {
+  font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  color: var(--foreground) !important;
+  line-height: 1.5 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  text-align: left !important;
+}
+
+/* Tous les éléments enfants héritent la couleur du parent par défaut.
+   Les classes Tailwind explicites (text-muted-foreground, text-primary)
+   réappliquent ensuite la bonne couleur. */
+.werocket-cookies-scope p,
+.werocket-cookies-scope h1,
+.werocket-cookies-scope h2,
+.werocket-cookies-scope h3,
+.werocket-cookies-scope h4,
+.werocket-cookies-scope h5,
+.werocket-cookies-scope h6,
+.werocket-cookies-scope span,
+.werocket-cookies-scope div,
+.werocket-cookies-scope label,
+.werocket-cookies-scope li,
+[data-slot="dialog-content"] p,
+[data-slot="dialog-content"] h1,
+[data-slot="dialog-content"] h2,
+[data-slot="dialog-content"] h3,
+[data-slot="dialog-content"] h4,
+[data-slot="dialog-content"] h5,
+[data-slot="dialog-content"] h6,
+[data-slot="dialog-content"] span,
+[data-slot="dialog-content"] div,
+[data-slot="dialog-content"] label,
+[data-slot="dialog-content"] li {
+  color: inherit !important;
+  font-family: inherit !important;
+  font-weight: revert !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  text-shadow: none !important;
+}
+
+/* Titres : explicitement var(--foreground), pas hérité */
+.werocket-cookies-scope [data-slot="card-title"],
+.werocket-cookies-scope [data-slot="dialog-title"],
+[data-slot="dialog-content"] [data-slot="dialog-title"],
+[data-slot="dialog-content"] [data-slot="card-title"] {
+  color: var(--foreground) !important;
+  font-weight: 600 !important;
+}
+
+/* Descriptions : muted foreground */
+.werocket-cookies-scope [data-slot="card-description"],
+.werocket-cookies-scope [data-slot="dialog-description"],
+[data-slot="dialog-content"] [data-slot="dialog-description"],
+[data-slot="dialog-content"] [data-slot="card-description"] {
+  color: var(--muted-foreground) !important;
+}
+
+/* Force background et bordures sur les conteneurs principaux */
+.werocket-cookies-scope [data-slot="card"],
+[data-slot="dialog-content"] {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Overlay : assure que le backdrop est visible même si le builder injecte
+   un z-index élevé sur d'autres éléments */
+[data-slot="dialog-overlay"] {
+  background-color: rgb(0 0 0 / 0.4) !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9998 !important;
+}
+
+[data-slot="dialog-content"] {
+  z-index: 9999 !important;
+}
+
+/* Boutons : préserve les styles shadcn contre les overrides agressifs des
+   builders qui ciblent button { ... } */
+.werocket-cookies-scope [data-slot="button"],
+[data-slot="dialog-content"] [data-slot="button"] {
+  font-family: inherit !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  text-shadow: none !important;
+  line-height: 1.25 !important;
+  text-decoration: none !important;
+  border-width: 1px !important;
+}
+
+/* Bouton primary (default) */
+.werocket-cookies-scope [data-slot="button"][data-variant="default"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="default"] {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary) !important;
+}
+.werocket-cookies-scope [data-slot="button"][data-variant="default"]:hover,
+[data-slot="dialog-content"] [data-slot="button"][data-variant="default"]:hover {
+  opacity: 0.9 !important;
+}
+
+/* Bouton outline */
+.werocket-cookies-scope [data-slot="button"][data-variant="outline"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="outline"] {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+.werocket-cookies-scope [data-slot="button"][data-variant="outline"]:hover,
+[data-slot="dialog-content"] [data-slot="button"][data-variant="outline"]:hover {
+  background-color: var(--muted) !important;
+}
+
+/* Bouton ghost */
+.werocket-cookies-scope [data-slot="button"][data-variant="ghost"],
+[data-slot="dialog-content"] [data-slot="button"][data-variant="ghost"] {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  border-color: transparent !important;
+}
+.werocket-cookies-scope [data-slot="button"][data-variant="ghost"]:hover,
+[data-slot="dialog-content"] [data-slot="button"][data-variant="ghost"]:hover {
+  background-color: var(--muted) !important;
+}
+
+/* Liens dans le scope cookies — empêche le thème de forcer sa couleur */
+.werocket-cookies-scope a,
+[data-slot="dialog-content"] a {
+  color: var(--primary);
+  text-decoration: none;
+}
+.werocket-cookies-scope a:hover,
+[data-slot="dialog-content"] a:hover {
+  text-decoration: underline;
+}
+
+/* SVG icons : empêche les builders de leur appliquer une couleur fixe */
+.werocket-cookies-scope svg,
+[data-slot="dialog-content"] svg,
+[data-radix-popper-content-wrapper] svg {
+  color: inherit !important;
+  fill: none;
+  stroke: currentColor;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Accordion : reset des marges/paddings que les builders mettent sur details/summary */
+.werocket-cookies-scope [data-slot="accordion-trigger"],
+[data-slot="dialog-content"] [data-slot="accordion-trigger"] {
+  background-color: transparent !important;
+  color: inherit !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+/* Switch : préserve les dimensions */
+.werocket-cookies-scope [data-slot="switch"],
+[data-slot="dialog-content"] [data-slot="switch"] {
+  display: inline-flex !important;
+  flex-shrink: 0 !important;
+}
