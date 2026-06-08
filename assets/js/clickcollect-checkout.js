@@ -175,7 +175,17 @@
     }
 
     function applyVisibilityLegacy() {
+        // WooCommerce rend la shipping method différemment selon le nombre de
+        // méthodes dispo :
+        //   - Plusieurs méthodes → <input type="radio" name="shipping_method[0]">
+        //   - UNE seule méthode  → <input type="hidden" name="shipping_method[0]">
+        // Le selector :checked ne matche pas les hidden inputs → wrapper restait
+        // caché en prod quand seul Click & Collect était configuré.
         var $selected = $('input[name^="shipping_method"]:checked');
+        if (!$selected.length) {
+            // Fallback : input hidden (cas "unique méthode de livraison")
+            $selected = $('input[name^="shipping_method"][type="hidden"]').first();
+        }
         var val = $selected.val() || '';
         var visible = val.indexOf(CC.shippingMethodId) === 0;
         $wrapper.toggle(visible);
