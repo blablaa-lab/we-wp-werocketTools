@@ -31,6 +31,9 @@ class CompanyInfoModule extends AbstractModule {
         // Dynamic Data chooser sous "Infos société". No-op si Breakdance
         // n'est pas actif sur le site.
         BreakdanceIntegration::register();
+
+        // Personnalisation wp-login.php (no-op si désactivé dans les settings).
+        new LoginCustomizer($this);
     }
 
     /**
@@ -103,6 +106,11 @@ class CompanyInfoModule extends AbstractModule {
             'website'         => '',
             'logo_id'         => 0,           // ID média WP
 
+            // Personnalisation page de connexion WordPress
+            'login_enabled'      => false,
+            'login_show_logo'    => true,
+            'login_cover_id'     => 0,        // ID média WP (image cover colonne droite)
+
             // Pages légales (HTML enrichi avec variables {company.x})
             'legal_mentions'  => '',
             'legal_privacy'   => '',
@@ -135,6 +143,10 @@ class CompanyInfoModule extends AbstractModule {
             'email'           => sanitize_email((string) ($data['email'] ?? '')),
             'website'         => esc_url_raw((string) ($data['website'] ?? '')),
             'logo_id'         => absint($data['logo_id'] ?? 0),
+
+            'login_enabled'   => !empty($data['login_enabled']),
+            'login_show_logo' => !array_key_exists('login_show_logo', $data) ? true : !empty($data['login_show_logo']),
+            'login_cover_id'  => absint($data['login_cover_id'] ?? 0),
 
             'legal_mentions'  => $this->safe_kses($data['legal_mentions'] ?? $current['legal_mentions'] ?? ''),
             'legal_privacy'   => $this->safe_kses($data['legal_privacy']  ?? $current['legal_privacy']  ?? ''),
@@ -219,16 +231,17 @@ class CompanyInfoModule extends AbstractModule {
     public function get_settings(): array {
         $settings = parent::get_settings();
 
-        $logo_id = (int) ($settings['logo_id'] ?? 0);
-        $settings['logo_url'] = '';
-
-        if ($logo_id > 0) {
-            $url = wp_get_attachment_image_url($logo_id, 'full');
-            if (is_string($url) && $url !== '') {
-                $settings['logo_url'] = $url;
-            }
-        }
+        $settings['logo_url']        = $this->resolve_attachment_url((int) ($settings['logo_id'] ?? 0));
+        $settings['login_cover_url'] = $this->resolve_attachment_url((int) ($settings['login_cover_id'] ?? 0));
 
         return $settings;
+    }
+
+    private function resolve_attachment_url(int $attachment_id): string {
+        if ($attachment_id <= 0) {
+            return '';
+        }
+        $url = wp_get_attachment_image_url($attachment_id, 'full');
+        return is_string($url) ? $url : '';
     }
 }

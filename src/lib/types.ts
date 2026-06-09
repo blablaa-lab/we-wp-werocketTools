@@ -115,6 +115,12 @@ export interface CompanyInfoSettings {
   logo_id: number
   /** Computed côté serveur depuis logo_id — read-only, pas dans le payload de save */
   logo_url?: string
+  // Personnalisation page de connexion WordPress
+  login_enabled: boolean
+  login_show_logo: boolean
+  login_cover_id: number
+  /** Computed côté serveur depuis login_cover_id — read-only */
+  login_cover_url?: string
   legal_mentions: string
   legal_privacy: string
   legal_cgv: string

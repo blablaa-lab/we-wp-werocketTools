@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import {
   IconLoader2, IconBuildingSkyscraper, IconAddressBook, IconFileText,
-  IconSearch, IconPhoto, IconTrash, IconExternalLink,
-  IconGavel, IconShieldLock, IconReceipt2,
+  IconSearch, IconPhoto, IconTrash, IconExternalLink, IconPalette,
+  IconGavel, IconShieldLock, IconReceipt2, IconLogin2,
 } from '@tabler/icons-react'
 import { api } from '@/lib/api'
 import { openMediaPicker } from '@/lib/wp-media'
@@ -28,15 +29,17 @@ export function CompanyInfoSettings() {
   const [loading, setLoading] = useState(true)
   const [variables, setVariables] = useState<CompanyVariable[]>([])
   const [logoUrl, setLogoUrl] = useState('')
+  const [loginCoverUrl, setLoginCoverUrl] = useState('')
   const [lookupValue, setLookupValue] = useState('')
   const [lookingUp, setLookingUp] = useState(false)
-  const { register, handleSubmit, setValue, reset, control, formState } = useForm<TCompanyInfo>({
+  const { register, handleSubmit, setValue, reset, control, watch, formState } = useForm<TCompanyInfo>({
     defaultValues: {
       siren: '', siret: '', name: '', commercial_name: '', legal_form: '',
       capital: '', rcs: '', vat: '', ape_code: '', ape_label: '',
       director: '', creation_date: '',
       street: '', postal_code: '', city: '', country: 'France',
       phone: '', email: '', website: '', logo_id: 0,
+      login_enabled: false, login_show_logo: true, login_cover_id: 0,
       legal_mentions: '', legal_privacy: '', legal_cgv: '',
     },
   })
@@ -64,6 +67,7 @@ export function CompanyInfoSettings() {
         // logo_url est computed côté serveur (CompanyInfoModule::get_settings)
         // → on l'utilise directement, plus besoin d'appel /wp/v2/media/{id}.
         setLogoUrl(s.settings.logo_url || '')
+        setLoginCoverUrl(s.settings.login_cover_url || '')
       })
       .catch(e => {
         toast.error(e instanceof Error ? e.message : 'Impossible de charger les réglages')
@@ -92,6 +96,7 @@ export function CompanyInfoSettings() {
       // Le serveur renvoie logo_url computed depuis logo_id. Si vide, le
       // logo_id n'a pas été sauvegardé OU le média a été supprimé.
       setLogoUrl(saved.logo_url || '')
+      setLoginCoverUrl(saved.login_cover_url || '')
       toast.success('Infos société enregistrées')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erreur lors de l\'enregistrement')
@@ -158,6 +163,24 @@ export function CompanyInfoSettings() {
     setLogoUrl('')
   }
 
+  async function handleSelectLoginCover() {
+    try {
+      const attachment = await openMediaPicker({
+        title: 'Choisir l\'image de la page de connexion',
+        button: { text: 'Utiliser cette image' },
+      })
+      setValue('login_cover_id', Number(attachment.id), { shouldDirty: true, shouldValidate: true })
+      setLoginCoverUrl(attachment.url)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Impossible d\'ouvrir la médiathèque')
+    }
+  }
+
+  function handleClearLoginCover() {
+    setValue('login_cover_id', 0, { shouldDirty: true })
+    setLoginCoverUrl('')
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
@@ -178,6 +201,10 @@ export function CompanyInfoSettings() {
           <TabsTrigger value="contact">
             <IconAddressBook className="size-4" />
             Coordonnées
+          </TabsTrigger>
+          <TabsTrigger value="branding">
+            <IconPalette className="size-4" />
+            Personnalisation
           </TabsTrigger>
           <TabsTrigger value="legal">
             <IconFileText className="size-4" />
@@ -321,47 +348,161 @@ export function CompanyInfoSettings() {
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="font-bold flex items-center gap-2">
-                  <IconPhoto className="size-4 text-primary" />
-                  Logo de la société
-                </CardTitle>
-                <CardDescription>Utilisé dans les en-têtes et le shortcode <code className="text-[11px] font-mono bg-muted px-1 py-0.5 rounded">[company_logo]</code></CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Champ registered pour que react-hook-form inclue logo_id
-                    dans le payload de submit (sinon setValue seul ne suffit
-                    pas toujours selon la version de RHF). valueAsNumber
-                    garantit qu'on envoie bien un int, pas une string. */}
-                <input
-                  type="hidden"
-                  {...register('logo_id', { valueAsNumber: true })}
-                />
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="size-24 rounded-2xl border border-border bg-muted/40 flex items-center justify-center overflow-hidden shrink-0">
-                    {logoUrl ? (
-                      <img src={logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
-                    ) : (
-                      <IconPhoto className="size-8 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={handleSelectLogo}>
-                      <IconPhoto className="size-4" />
-                      {logoUrl ? 'Changer' : 'Sélectionner'}
+          </div>
+        </TabsContent>
+
+        {/* ───── Onglet PERSONNALISATION ───── */}
+        <TabsContent value="branding" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-bold flex items-center gap-2">
+                <IconPhoto className="size-4 text-primary" />
+                Logo de la société
+              </CardTitle>
+              <CardDescription>
+                Utilisé dans les en-têtes, les emails et le shortcode{' '}
+                <code className="text-[11px] font-mono bg-muted px-1 py-0.5 rounded">[company_logo]</code>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <input type="hidden" {...register('logo_id', { valueAsNumber: true })} />
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="size-24 rounded-2xl border border-border bg-muted/40 flex items-center justify-center overflow-hidden shrink-0">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
+                  ) : (
+                    <IconPhoto className="size-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={handleSelectLogo}>
+                    <IconPhoto className="size-4" />
+                    {logoUrl ? 'Changer' : 'Sélectionner'}
+                  </Button>
+                  {logoUrl && (
+                    <Button type="button" variant="ghost" onClick={handleClearLogo}>
+                      <IconTrash className="size-4" />
+                      Retirer
                     </Button>
-                    {logoUrl && (
-                      <Button type="button" variant="ghost" onClick={handleClearLogo}>
-                        <IconTrash className="size-4" />
-                        Retirer
-                      </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="font-bold flex items-center gap-2">
+                    <IconLogin2 className="size-4 text-primary" />
+                    Page de connexion WordPress
+                  </CardTitle>
+                  <CardDescription>
+                    Habille <code className="text-[11px] font-mono bg-muted px-1 py-0.5 rounded">wp-login.php</code> en deux colonnes :
+                    logo + formulaire à gauche, image de couverture à droite.
+                  </CardDescription>
+                </div>
+                <Controller
+                  control={control}
+                  name="login_enabled"
+                  render={({ field }) => (
+                    <Switch
+                      checked={!!field.value}
+                      onCheckedChange={field.onChange}
+                      aria-label="Activer la personnalisation"
+                    />
+                  )}
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <input type="hidden" {...register('login_cover_id', { valueAsNumber: true })} />
+
+              <div className={watch('login_enabled') ? 'space-y-5' : 'space-y-5 opacity-50 pointer-events-none select-none'}>
+                {/* Aperçu maquette 2 colonnes */}
+                <div className="rounded-2xl overflow-hidden ring-1 ring-foreground/10 grid grid-cols-2 aspect-[16/7] bg-background">
+                  <div className="relative bg-background p-4 flex flex-col items-center justify-center gap-3">
+                    <div className="size-12 rounded-xl bg-muted/40 ring-1 ring-border flex items-center justify-center overflow-hidden">
+                      {logoUrl ? (
+                        <img src={logoUrl} alt="" className="max-w-full max-h-full object-contain" />
+                      ) : (
+                        <IconPhoto className="size-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="w-full max-w-[160px] space-y-1.5">
+                      <div className="h-2 rounded-full bg-muted/70" />
+                      <div className="h-6 rounded-lg bg-muted/40" />
+                      <div className="h-2 rounded-full bg-muted/70 mt-3" />
+                      <div className="h-6 rounded-lg bg-muted/40" />
+                      <div className="h-6 mt-2 rounded-lg bg-primary/80" />
+                    </div>
+                  </div>
+                  <div
+                    className="relative bg-gradient-to-br from-slate-200 via-slate-100 to-slate-50"
+                    style={loginCoverUrl ? { backgroundImage: `url(${loginCoverUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+                  >
+                    {!loginCoverUrl && (
+                      <div className="absolute inset-0 flex items-center justify-center text-[10px] uppercase tracking-wider text-muted-foreground/80 font-semibold">
+                        Image de couverture
+                      </div>
                     )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+
+                <div className="flex items-start gap-3 rounded-2xl border border-border bg-muted/30 p-3">
+                  <Controller
+                    control={control}
+                    name="login_show_logo"
+                    render={({ field }) => (
+                      <Switch
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                        className="mt-0.5"
+                        aria-label="Afficher le logo société"
+                      />
+                    )}
+                  />
+                  <div className="space-y-0.5">
+                    <Label className="text-sm font-medium">Afficher le logo société</Label>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Remplace le logo WordPress par celui de ta société sur la page de connexion.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-muted-foreground">Image de couverture (colonne de droite)</Label>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div className="h-24 w-40 rounded-2xl border border-border bg-muted/40 overflow-hidden shrink-0">
+                      {loginCoverUrl ? (
+                        <img src={loginCoverUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <IconPhoto className="size-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={handleSelectLoginCover}>
+                        <IconPhoto className="size-4" />
+                        {loginCoverUrl ? 'Changer' : 'Choisir une image'}
+                      </Button>
+                      {loginCoverUrl && (
+                        <Button type="button" variant="ghost" onClick={handleClearLoginCover}>
+                          <IconTrash className="size-4" />
+                          Retirer
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Format recommandé : paysage haute résolution (≥ 1600 × 1200 px). L'image est centrée et recadrée selon la hauteur de l'écran.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ───── Onglet PAGES LÉGALES ───── */}
