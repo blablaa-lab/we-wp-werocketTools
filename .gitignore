@@ -26,6 +26,7 @@ Desktop.ini
 # Dependencies
 node_modules/
 vendor/
+!includes/plugin-update-checker/vendor/
 composer.lock
 # Note : package-lock.json est commité pour permettre npm ci en CI
 # (reproductibilité des builds + cache npm fonctionnel)
