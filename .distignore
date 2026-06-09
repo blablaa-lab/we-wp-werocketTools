@@ -5,7 +5,10 @@ src/
 
 # Dépendances dev
 node_modules/
-vendor/
+# /vendor/ avec slash initial = racine projet uniquement (composer) ;
+# le vendor/ du plugin-update-checker (Parsedown, PucReadmeParser) DOIT
+# rester dans le ZIP sinon PUC fatal sur les releases avec changelog.
+/vendor/
 
 # Config build/dev
 vite.config.ts
