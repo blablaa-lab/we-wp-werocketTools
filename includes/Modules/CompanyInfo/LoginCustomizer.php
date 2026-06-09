@@ -17,6 +17,13 @@ class LoginCustomizer {
         add_filter('login_headerurl',  [$this, 'filter_logo_url']);
         add_filter('login_headertext', [$this, 'filter_logo_text']);
         add_filter('login_body_class', [$this, 'filter_body_class']);
+        // Masque le sélecteur de langue (WP 5.9+) — il s'insère en dehors
+        // du grid 2 colonnes et casse le centrage vertical du formulaire.
+        add_filter('login_display_language_dropdown', [$this, 'filter_language_dropdown']);
+    }
+
+    public function filter_language_dropdown(bool $display): bool {
+        return $this->is_enabled() ? false : $display;
     }
 
     private function settings(): array {
@@ -67,19 +74,18 @@ class LoginCustomizer {
         $cover_url   = $settings['login_cover_url'] ?? '';
         $show_logo   = !empty($settings['login_show_logo']) && $logo_url !== '';
         $has_cover   = $cover_url !== '';
-
-        // Pas de cover → fallback 1 colonne (mais on garde quand même le
-        // logo si activé). Toggle d'une CSS var côté <body>.
-        $cover_bg = $has_cover
-            ? sprintf('url(%s)', esc_url($cover_url))
-            : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
         ?>
 <style id="werocket-login-custom">
 /* ─── Layout 2 colonnes : on transforme le <body class="login"> en grid ─── */
+/* Ancre la hauteur à 100vh pile (pas de min-height qui laisserait le grid
+   s'étirer si du contenu hors-flow injecte de la hauteur) pour que l'image
+   de cover en object-fit:cover reste calée sur la viewport. */
+html, body.wr-login-custom { height: 100%; }
 body.wr-login-custom {
     margin: 0;
     padding: 0;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: #fff;
     display: grid;
     grid-template-columns: <?php echo $has_cover ? 'minmax(0, 1fr) minmax(0, 1fr)' : '1fr'; ?>;
@@ -161,13 +167,23 @@ body.wr-login-custom .login #backtoblog a:hover {
     text-decoration: underline;
 }
 
-/* ─── Colonne droite : injectée via <div class="wr-login-cover"> ─── */
+/* ─── Colonne droite : <img> object-fit cover dans un wrapper position:relative ─── */
 <?php if ($has_cover): ?>
 .wr-login-cover {
     grid-column: 2;
     grid-row: 1;
-    background: <?php echo $cover_bg; ?> center/cover no-repeat;
     position: relative;
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+.wr-login-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
 }
 
 /* Voile subtil pour conserver de la lisibilité même si l'image est très claire. */
@@ -205,8 +221,13 @@ body.wr-login-custom.login form { transition: box-shadow .2s ease; }
     }
 
     /**
-     * Injecté en fin de body — devient la colonne 2 via CSS grid. On reste
-     * léger : un <div> vide avec le background depuis l'inline style scope.
+     * Injecté en fin de body — devient la colonne 2 via CSS grid.
+     *
+     * On utilise un vrai <img> avec object-fit:cover plutôt qu'un
+     * background-image : ça permet au navigateur de précharger l'image
+     * en priorité (vs background qui attend le CSS), de servir la bonne
+     * version responsive si srcset, et garantit que le ratio est respecté
+     * via object-fit même si la cellule grid se redimensionne.
      */
     public function render_cover(): void {
         if (!$this->is_enabled()) {
@@ -216,6 +237,9 @@ body.wr-login-custom.login form { transition: box-shadow .2s ease; }
         if ($cover_url === '') {
             return;
         }
-        echo '<div class="wr-login-cover" aria-hidden="true"></div>';
+        printf(
+            '<div class="wr-login-cover" aria-hidden="true"><img src="%s" alt="" loading="eager" decoding="async"></div>',
+            esc_url($cover_url)
+        );
     }
 }
