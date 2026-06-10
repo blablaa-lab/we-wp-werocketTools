@@ -110,6 +110,9 @@ class CompanyInfoModule extends AbstractModule {
             'login_enabled'      => false,
             'login_show_logo'    => true,
             'login_cover_id'     => 0,        // ID média WP (image cover colonne droite)
+            'login_logo_size'    => 64,       // hauteur du logo en px (32–160)
+            'login_button_bg_color'   => '',  // '' = couleur WordPress par défaut
+            'login_button_text_color' => '',
 
             // Pages légales (HTML enrichi avec variables {company.x})
             'legal_mentions'  => '',
@@ -147,6 +150,9 @@ class CompanyInfoModule extends AbstractModule {
             'login_enabled'   => !empty($data['login_enabled']),
             'login_show_logo' => !array_key_exists('login_show_logo', $data) ? true : !empty($data['login_show_logo']),
             'login_cover_id'  => absint($data['login_cover_id'] ?? 0),
+            'login_logo_size' => max(32, min(160, absint($data['login_logo_size'] ?? 64))),
+            'login_button_bg_color'   => $this->sanitize_optional_hex($data['login_button_bg_color'] ?? ''),
+            'login_button_text_color' => $this->sanitize_optional_hex($data['login_button_text_color'] ?? ''),
 
             'legal_mentions'  => $this->safe_kses($data['legal_mentions'] ?? $current['legal_mentions'] ?? ''),
             'legal_privacy'   => $this->safe_kses($data['legal_privacy']  ?? $current['legal_privacy']  ?? ''),
@@ -170,6 +176,15 @@ class CompanyInfoModule extends AbstractModule {
             error_log('[WeRocketTools] wp_kses_post failed, fallback strip_tags : ' . $e->getMessage());
             return strip_tags($value, '<p><br><h1><h2><h3><h4><strong><em><u><s><a><ul><ol><li><blockquote><code><pre><hr>');
         }
+    }
+
+    /** '' = valeur par défaut (pas d'override), sinon hex valide obligatoire. */
+    private function sanitize_optional_hex(mixed $value): string {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+        return sanitize_hex_color($value) ?: '';
     }
 
     private function sanitize_digits(string $value, int $expected_length): string {
