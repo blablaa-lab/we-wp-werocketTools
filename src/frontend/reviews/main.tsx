@@ -23,6 +23,7 @@ document.querySelectorAll<HTMLElement>('.werocket-badge-mount').forEach(el => {
       note={el.dataset.note ?? ''}
       etoiles={el.dataset.etoiles ?? ''}
       avis={el.dataset.avis ?? ''}
+      carte={el.dataset.carte ?? ''}
     />
   )
 })

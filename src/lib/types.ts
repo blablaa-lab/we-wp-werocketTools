@@ -77,6 +77,8 @@ export interface ReviewsSettings {
   badge_show_rating: boolean
   badge_show_stars: boolean
   badge_show_count: boolean
+  /** false = transparent : sans fond, bordure ni padding */
+  badge_card: boolean
   badge_rating_color: string
   badge_star_color: string
   badge_count_color: string

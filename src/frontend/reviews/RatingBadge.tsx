@@ -11,6 +11,8 @@ export interface RatingBadgeViewProps {
   showRating?: boolean
   showStars?: boolean
   showCount?: boolean
+  /** true = fond blanc + bordure + padding ; false = transparent, sans padding */
+  card?: boolean
   /** '' = couleurs par défaut */
   ratingColor?: string
   starColor?: string
@@ -24,11 +26,22 @@ export function RatingBadgeView({
   showRating = true,
   showStars = true,
   showCount = true,
+  card = true,
   ratingColor = '',
   starColor = '',
   countColor = '',
 }: RatingBadgeViewProps) {
   if (!showLogo && !showRating && !showStars && !showCount) return null
+
+  const cardStyle: React.CSSProperties = card
+    ? {
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E8EAED',
+        borderRadius: 16,
+        padding: '18px 26px',
+        boxShadow: '0 1px 2px rgba(60, 64, 67, 0.06)',
+      }
+    : {}
 
   return (
     <div
@@ -37,6 +50,7 @@ export function RatingBadgeView({
         display: 'inline-flex',
         alignItems: 'center',
         gap: 14,
+        ...cardStyle,
         // Stars lit var(--wr-star-color, jaune Google)
         ...(starColor ? ({ ['--wr-star-color' as never]: starColor }) : {}),
       }}
@@ -72,6 +86,7 @@ export interface RatingBadgeProps {
   note: string
   etoiles: string
   avis: string
+  carte: string
 }
 
 function resolveFlag(attr: string, settingValue: boolean | undefined): boolean {
@@ -80,7 +95,7 @@ function resolveFlag(attr: string, settingValue: boolean | undefined): boolean {
   return settingValue !== false
 }
 
-export function RatingBadge({ logo, note, etoiles, avis }: RatingBadgeProps) {
+export function RatingBadge({ logo, note, etoiles, avis, carte }: RatingBadgeProps) {
   const [meta, setMeta] = useState<ReviewsMeta | null>(null)
   const [settings, setSettings] = useState<Partial<ReviewsSettings>>({})
   const [loading, setLoading] = useState(true)
@@ -107,6 +122,7 @@ export function RatingBadge({ logo, note, etoiles, avis }: RatingBadgeProps) {
       showRating={resolveFlag(note, settings.badge_show_rating)}
       showStars={resolveFlag(etoiles, settings.badge_show_stars)}
       showCount={resolveFlag(avis, settings.badge_show_count)}
+      card={resolveFlag(carte, settings.badge_card)}
       ratingColor={settings.badge_rating_color || ''}
       starColor={settings.badge_star_color || ''}
       countColor={settings.badge_count_color || ''}

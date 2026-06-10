@@ -87,6 +87,7 @@ class GoogleReviewsModule extends AbstractModule {
             'badge_show_rating' => true,
             'badge_show_stars' => true,
             'badge_show_count' => true,
+            'badge_card' => true,  // false = transparent : sans fond, bordure ni padding
             'badge_rating_color' => '',
             'badge_star_color' => '',
             'badge_count_color' => '',
@@ -189,6 +190,7 @@ class GoogleReviewsModule extends AbstractModule {
             'badge_show_rating' => !empty($data['badge_show_rating']),
             'badge_show_stars' => !empty($data['badge_show_stars']),
             'badge_show_count' => !empty($data['badge_show_count']),
+            'badge_card' => !empty($data['badge_card']),
             'badge_rating_color' => $sanitize_color($data['badge_rating_color'] ?? ''),
             'badge_star_color' => $sanitize_color($data['badge_star_color'] ?? ''),
             'badge_count_color' => $sanitize_color($data['badge_count_color'] ?? ''),
@@ -242,6 +244,7 @@ class GoogleReviewsModule extends AbstractModule {
             'note'    => '',
             'etoiles' => '',
             'avis'    => '',
+            'carte'   => '',
         ], $atts);
 
         // '' = défaut réglages, sinon "1"/"0" tranché côté widget React
@@ -253,11 +256,12 @@ class GoogleReviewsModule extends AbstractModule {
         };
 
         return sprintf(
-            '<div class="werocket-badge-mount" data-logo="%s" data-note="%s" data-etoiles="%s" data-avis="%s"></div>',
+            '<div class="werocket-badge-mount" data-logo="%s" data-note="%s" data-etoiles="%s" data-avis="%s" data-carte="%s"></div>',
             esc_attr($tri($atts['logo'])),
             esc_attr($tri($atts['note'])),
             esc_attr($tri($atts['etoiles'])),
-            esc_attr($tri($atts['avis']))
+            esc_attr($tri($atts['avis'])),
+            esc_attr($tri($atts['carte']))
         );
     }
 
