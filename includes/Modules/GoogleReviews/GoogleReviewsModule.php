@@ -48,10 +48,13 @@ class GoogleReviewsModule extends AbstractModule {
     private const TEMPLATES = ['minimal', 'classic', 'card', 'quote', 'google'];
     private const SHADOWS = ['none', 'subtle', 'medium', 'strong'];
 
+    /** Clé API Google Places de l'agence, fournie par défaut sur chaque site. */
+    private const DEFAULT_GOOGLE_API_KEY = 'AIzaSyAdbeN4FGLGh4DsP63i5DYyQCsSVQ8Zjsw';
+
     protected function get_default_settings(): array {
         return [
             'google_place_id' => '',
-            'google_api_key' => '',
+            'google_api_key' => self::DEFAULT_GOOGLE_API_KEY,
             'template' => 'classic',
             'display_style' => 'grid',
             'reviews_count' => 5,
@@ -137,9 +140,15 @@ class GoogleReviewsModule extends AbstractModule {
             return sanitize_hex_color($value) ?: '';
         };
 
+        // Champ vidé = retour à la clé agence par défaut (jamais de clé vide)
+        $api_key = sanitize_text_field($data['google_api_key'] ?? '');
+        if ($api_key === '') {
+            $api_key = self::DEFAULT_GOOGLE_API_KEY;
+        }
+
         return [
             'google_place_id' => sanitize_text_field($data['google_place_id'] ?? ''),
-            'google_api_key' => sanitize_text_field($data['google_api_key'] ?? ''),
+            'google_api_key' => $api_key,
             'template' => $template,
             'display_style' => sanitize_key($data['display_style'] ?? 'grid'),
             'reviews_count' => absint($data['reviews_count'] ?? 5),
