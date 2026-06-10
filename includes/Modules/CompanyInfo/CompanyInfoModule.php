@@ -114,11 +114,22 @@ class CompanyInfoModule extends AbstractModule {
             'login_button_bg_color'   => '',  // '' = couleur WordPress par défaut
             'login_button_text_color' => '',
 
-            // Pages légales (HTML enrichi avec variables {company.x})
-            'legal_mentions'  => '',
-            'legal_privacy'   => '',
+            // Pages légales (HTML enrichi avec variables {company.x}) —
+            // templates agence pré-remplis, modifiables ensuite dans l'admin
+            'legal_mentions'  => $this->default_legal_content('mentions'),
+            'legal_privacy'   => $this->default_legal_content('privacy'),
             'legal_cgv'       => '',
         ];
+    }
+
+    /**
+     * Contenu légal par défaut, stocké en HTML dans legal-defaults/ pour ne
+     * pas alourdir la classe. Les variables {company.x} / {site.x} sont
+     * résolues à l'affichage, donc le même template sert à tous les sites.
+     */
+    private function default_legal_content(string $type): string {
+        $file = __DIR__ . '/legal-defaults/' . $type . '.html';
+        return is_readable($file) ? (string) file_get_contents($file) : '';
     }
 
     protected function sanitize_settings(array $data): array {
