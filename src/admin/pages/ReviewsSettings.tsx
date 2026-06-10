@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, type UseFormRegister } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  IconKey, IconEye, IconLoader2, IconExternalLink, IconRefresh,
+  IconKey, IconEye, IconEyeOff, IconLoader2, IconExternalLink, IconRefresh,
   IconCircleCheck, IconAlertTriangle, IconClock, IconClipboard, IconCheck,
   IconTemplate, IconLayoutGrid, IconPalette,
 } from '@tabler/icons-react'
@@ -135,7 +135,7 @@ export function ReviewsSettings() {
               </div>
             </Field>
             <Field label="Clé API Google Places">
-              <Input {...register('google_api_key')} type="password" placeholder="AIza..." />
+              <SecretInput registration={register('google_api_key')} placeholder="AIza..." />
             </Field>
             <Field label="Durée du cache (secondes)">
               <Input {...register('cache_duration', { valueAsNumber: true })} type="number" min={60} />
@@ -266,6 +266,40 @@ export function ReviewsSettings() {
       </Card>
 
     </form>
+  )
+}
+
+/**
+ * Input masqué par défaut (type password) avec bouton œil pour révéler
+ * temporairement la valeur — pour les secrets type clé API.
+ */
+function SecretInput({
+  registration,
+  placeholder,
+}: {
+  registration: ReturnType<UseFormRegister<TReviewsSettings>>
+  placeholder?: string
+}) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className="relative">
+      <Input
+        {...registration}
+        type={visible ? 'text' : 'password'}
+        autoComplete="off"
+        placeholder={placeholder}
+        className="pr-10"
+      />
+      <button
+        type="button"
+        onClick={() => setVisible(v => !v)}
+        aria-label={visible ? 'Masquer la clé' : 'Afficher la clé'}
+        title={visible ? 'Masquer la clé' : 'Afficher la clé'}
+        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {visible ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+      </button>
+    </div>
   )
 }
 
